@@ -1,6 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { FilterState } from '../../types';
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { FilterState } from "../../types";
 
 interface FiltersStateAll {
   movie: FilterState;
@@ -11,7 +11,8 @@ const defaultFilter: FilterState = {
   genre: null,
   year: null,
   rating: null,
-  sortBy: 'popularity.desc',
+  country: null,
+  sortBy: "popularity.desc",
 };
 
 const initialState: FiltersStateAll = {
@@ -20,7 +21,7 @@ const initialState: FiltersStateAll = {
 };
 
 const filtersSlice = createSlice({
-  name: 'filters',
+  name: "filters",
   initialState,
   reducers: {
     setMovieFilter: (state, action: PayloadAction<Partial<FilterState>>) => {
@@ -38,5 +39,10 @@ const filtersSlice = createSlice({
   },
 });
 
-export const { setMovieFilter, setTVFilter, resetMovieFilters, resetTVFilters } = filtersSlice.actions;
+export const {
+  setMovieFilter,
+  setTVFilter,
+  resetMovieFilters,
+  resetTVFilters,
+} = filtersSlice.actions;
 export default filtersSlice.reducer;

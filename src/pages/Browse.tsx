@@ -45,10 +45,18 @@ export default function Browse({ mediaType }: BrowseProps) {
   // Initialize from URL params and reset on unmount
   useEffect(() => {
     const genreParam = searchParams.get("genre");
-    if (genreParam) {
-      if (mediaType === "movie")
-        dispatch(setMovieFilter({ genre: Number(genreParam) }));
-      else dispatch(setTVFilter({ genre: Number(genreParam) }));
+    const countryParam = searchParams.get("country");
+
+    if (genreParam || countryParam) {
+      const updates: any = {};
+      if (genreParam) updates.genre = Number(genreParam);
+      if (countryParam) updates.country = countryParam;
+
+      if (mediaType === "movie") {
+        dispatch(setMovieFilter(updates));
+      } else {
+        dispatch(setTVFilter(updates));
+      }
     }
 
     // Reset filters when unmounting or changing media type
@@ -80,6 +88,7 @@ export default function Browse({ mediaType }: BrowseProps) {
           filters.genre ||
           filters.rating ||
           filters.year ||
+          filters.country ||
           filters.sortBy !== "popularity.desc";
 
         let data;
@@ -98,6 +107,7 @@ export default function Browse({ mediaType }: BrowseProps) {
             if (filters.genre) params.with_genres = String(filters.genre);
             if (filters.rating) params["vote_average.gte"] = filters.rating;
             if (filters.year) params.primary_release_year = filters.year;
+            if (filters.country) params.with_origin_country = filters.country;
 
             const res = await discoverMovies(
               params as Parameters<typeof discoverMovies>[0],
@@ -116,6 +126,7 @@ export default function Browse({ mediaType }: BrowseProps) {
             if (filters.genre) params.with_genres = String(filters.genre);
             if (filters.rating) params["vote_average.gte"] = filters.rating;
             if (filters.year) params.first_air_date_year = filters.year;
+            if (filters.country) params.with_origin_country = filters.country;
 
             const res = await discoverTV(
               params as Parameters<typeof discoverTV>[0],
@@ -161,6 +172,7 @@ export default function Browse({ mediaType }: BrowseProps) {
     title = `Upcoming ${baseTitle}`;
   else if (sortParam === "airing_today" && !filters.genre)
     title = `Airing Today ${baseTitle}`;
+  else if (filters.country === "KR") title = `Korean Dramas`;
 
   const genreLabel = genres.find((g) => g.id === filters.genre)?.name;
 

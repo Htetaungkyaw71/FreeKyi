@@ -89,6 +89,7 @@ export const discoverMovies = (params: {
   primary_release_year?: number;
   "vote_average.gte"?: number;
   sort_by?: string;
+  with_origin_country?: string;
 }) => api.get<TMDBResponse<Movie>>("/discover/movie", { params });
 
 export const discoverTV = (params: {
@@ -97,6 +98,7 @@ export const discoverTV = (params: {
   first_air_date_year?: number;
   "vote_average.gte"?: number;
   sort_by?: string;
+  with_origin_country?: string;
 }) => api.get<TMDBResponse<TVSeries>>("/discover/tv", { params });
 
 // Search
@@ -120,6 +122,16 @@ export const getHorrorMovies = (page = 1) =>
 export const getActionMovies = (page = 1) =>
   api.get<TMDBResponse<Movie>>("/discover/movie", {
     params: { page, with_genres: "28", sort_by: "popularity.desc" },
+  });
+
+export const getAnimationMovies = (page = 1) =>
+  api.get<TMDBResponse<Movie>>("/discover/movie", {
+    params: { page, with_genres: "16", sort_by: "popularity.desc" },
+  });
+
+export const getKoreanSeries = (page = 1) =>
+  api.get<TMDBResponse<TVSeries>>("/discover/tv", {
+    params: { page, with_origin_country: "KR", sort_by: "popularity.desc" },
   });
 
 // Vidsrc embed URL builder

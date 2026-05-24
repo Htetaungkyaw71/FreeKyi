@@ -111,5 +111,6 @@ export interface FilterState {
   genre: number | null;
   year: number | null;
   rating: number | null;
+  country: string | null;
   sortBy: string;
 }

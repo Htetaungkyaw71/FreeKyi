@@ -15,6 +15,19 @@ const SORT_OPTIONS = [
   { value: "revenue.desc", label: "Box Office" },
 ];
 
+const COUNTRIES = [
+  { code: "US", name: "United States" },
+  { code: "KR", name: "South Korea" },
+  { code: "JP", name: "Japan" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "FR", name: "France" },
+  { code: "IN", name: "India" },
+  { code: "ES", name: "Spain" },
+  { code: "IT", name: "Italy" },
+  { code: "DE", name: "Germany" },
+  { code: "CN", name: "China" },
+];
+
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: 30 }, (_, i) => CURRENT_YEAR - i);
 // const RATINGS = [9, 8, 7, 6, 5];
@@ -26,7 +39,10 @@ export function FilterBar({
   onReset,
 }: FilterBarProps) {
   const hasActiveFilters =
-    filters.genre !== null || filters.year !== null || filters.rating !== null;
+    filters.genre !== null ||
+    filters.year !== null ||
+    filters.rating !== null ||
+    filters.country !== null;
 
   return (
     <div className="bg-cinema-card border border-cinema-border rounded-xl p-4 space-y-5">
@@ -63,6 +79,28 @@ export function FilterBar({
           {SORT_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-xs text-cinema-muted font-body uppercase tracking-wider mb-2">
+          Country
+        </label>
+        <select
+          value={filters.country ?? ""}
+          onChange={(e) =>
+            onFilterChange({
+              country: e.target.value ? e.target.value : null,
+            })
+          }
+          className="w-full bg-cinema-hover border border-cinema-border rounded-lg px-3 py-2 text-sm text-cinema-text focus:outline-none focus:border-cinema-accent transition-colors"
+        >
+          <option value="">All Countries</option>
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
             </option>
           ))}
         </select>
@@ -114,6 +152,8 @@ export function FilterBar({
           ))}
         </select>
       </div>
+
+      {/* Country */}
 
       {/* Min Rating */}
       {/* <div>
