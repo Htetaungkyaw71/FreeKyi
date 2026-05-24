@@ -154,20 +154,24 @@ export default function Browse({ mediaType }: BrowseProps) {
           )}
 
           {/* Sidebar */}
+
           <aside
             className={`
-              fixed md:static inset-x-0 bottom-0 z-50 
-              bg-cinema-bg md:bg-transparent
-              transform transition-transform duration-300 ease-in-out
-              ${showFilterMobile ? "translate-y-0" : "translate-y-full"} 
-              md:translate-y-0
-              max-h-[85dvh]
-              md:block w-full md:w-64 md:flex-shrink-0
-              rounded-t-2xl md:rounded-none
-              border-t border-cinema-border md:border-0
-             overflow-y-auto md:max-h-none md:overflow-visible
-              p-6 md:p-0
-            `}
+            fixed md:static inset-x-0 z-50 
+            bg-cinema-bg md:bg-transparent
+            transform transition-transform duration-300 ease-in-out
+            ${showFilterMobile ? "translate-y-0" : "translate-y-[110%]"} 
+            md:translate-y-0
+            md:block w-full md:w-64 md:flex-shrink-0
+            rounded-t-2xl md:rounded-none
+            border-t border-cinema-border md:border-0
+            overflow-y-auto md:max-h-none md:overflow-visible
+            p-6 md:p-0
+          `}
+            style={{
+              bottom: 0,
+              maxHeight: "85svh",
+            }}
           >
             {/* Mobile Header */}
             <div className="flex justify-between items-center mb-6 md:hidden">

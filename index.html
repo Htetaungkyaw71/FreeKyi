@@ -30,6 +30,21 @@
     <!-- Performance: Preconnect to major external APIs and CDNs -->
     <link rel="preconnect" href="https://api.themoviedb.org" />
     <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
+
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-1WSF2P8CB8"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-1WSF2P8CB8");
+    </script>
   </head>
   <body>
     <div id="root"></div>
