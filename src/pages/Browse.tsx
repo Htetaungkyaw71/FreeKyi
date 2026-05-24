@@ -10,6 +10,9 @@ import {
   discoverTV,
   getMovieGenres,
   getTVGenres,
+  getNowPlayingMovies,
+  getUpcomingMovies,
+  getAiringTodayTV,
 } from "../services/tmdb";
 import { useAppDispatch, useAppSelector } from "../hooks/useStore";
 import {
@@ -72,26 +75,53 @@ export default function Browse({ mediaType }: BrowseProps) {
     const fetchItems = async () => {
       setLoading(true);
       try {
-        const params: Record<string, unknown> = {
-          page,
-          sort_by: filters.sortBy,
-        };
-        if (filters.genre) params.with_genres = String(filters.genre);
-        if (filters.rating) params["vote_average.gte"] = filters.rating;
+        const sortParam = searchParams.get("sort");
+        const hasCustomFilters =
+          filters.genre ||
+          filters.rating ||
+          filters.year ||
+          filters.sortBy !== "popularity.desc";
 
         let data;
         if (mediaType === "movie") {
-          if (filters.year) params.primary_release_year = filters.year;
-          const res = await discoverMovies(
-            params as Parameters<typeof discoverMovies>[0],
-          );
-          data = res.data;
+          if (sortParam === "now_playing" && !hasCustomFilters) {
+            const res = await getNowPlayingMovies(page);
+            data = res.data;
+          } else if (sortParam === "upcoming" && !hasCustomFilters) {
+            const res = await getUpcomingMovies(page);
+            data = res.data;
+          } else {
+            const params: Record<string, unknown> = {
+              page,
+              sort_by: filters.sortBy,
+            };
+            if (filters.genre) params.with_genres = String(filters.genre);
+            if (filters.rating) params["vote_average.gte"] = filters.rating;
+            if (filters.year) params.primary_release_year = filters.year;
+
+            const res = await discoverMovies(
+              params as Parameters<typeof discoverMovies>[0],
+            );
+            data = res.data;
+          }
         } else {
-          if (filters.year) params.first_air_date_year = filters.year;
-          const res = await discoverTV(
-            params as Parameters<typeof discoverTV>[0],
-          );
-          data = res.data;
+          if (sortParam === "airing_today" && !hasCustomFilters) {
+            const res = await getAiringTodayTV(page);
+            data = res.data;
+          } else {
+            const params: Record<string, unknown> = {
+              page,
+              sort_by: filters.sortBy,
+            };
+            if (filters.genre) params.with_genres = String(filters.genre);
+            if (filters.rating) params["vote_average.gte"] = filters.rating;
+            if (filters.year) params.first_air_date_year = filters.year;
+
+            const res = await discoverTV(
+              params as Parameters<typeof discoverTV>[0],
+            );
+            data = res.data;
+          }
         }
         setItems(data.results);
         setTotalPages(data.total_pages);
@@ -102,7 +132,7 @@ export default function Browse({ mediaType }: BrowseProps) {
       }
     };
     fetchItems();
-  }, [mediaType, filters, page]);
+  }, [mediaType, filters, page, searchParams]);
 
   const handlePageChange = (p: number) => {
     setPage(p);
@@ -121,7 +151,17 @@ export default function Browse({ mediaType }: BrowseProps) {
     setPage(1);
   };
 
-  const title = mediaType === "movie" ? "Movies" : "TV Series";
+  const baseTitle = mediaType === "movie" ? "Movies" : "TV Series";
+  const sortParam = searchParams.get("sort");
+
+  let title = baseTitle;
+  if (sortParam === "now_playing" && !filters.genre)
+    title = `Now Playing ${baseTitle}`;
+  else if (sortParam === "upcoming" && !filters.genre)
+    title = `Upcoming ${baseTitle}`;
+  else if (sortParam === "airing_today" && !filters.genre)
+    title = `Airing Today ${baseTitle}`;
+
   const genreLabel = genres.find((g) => g.id === filters.genre)?.name;
 
   return (
@@ -163,7 +203,7 @@ export default function Browse({ mediaType }: BrowseProps) {
 
           <aside
             className={`
-            fixed md:static inset-x-0 z-50 
+            fixed md:sticky md:top-24 md:self-start inset-x-0 z-50 
             bg-cinema-bg md:bg-transparent
             transform transition-transform duration-300 ease-in-out
             ${showFilterMobile ? "translate-y-0" : "translate-y-[110%]"} 
@@ -171,13 +211,11 @@ export default function Browse({ mediaType }: BrowseProps) {
             md:block w-full md:w-64 md:flex-shrink-0
             rounded-t-2xl md:rounded-none
             border-t border-cinema-border md:border-0
-            overflow-y-auto md:max-h-none md:overflow-visible
+            overflow-y-auto
             p-6 md:p-0
+            bottom-0 max-h-[85svh] md:bottom-auto md:max-h-[calc(100vh-8rem)]
+            scrollbar-hide
           `}
-            style={{
-              bottom: 0,
-              maxHeight: "85svh",
-            }}
           >
             {/* Mobile Header */}
             <div className="flex justify-between items-center mb-6 md:hidden">
@@ -190,7 +228,7 @@ export default function Browse({ mediaType }: BrowseProps) {
               </button>
             </div>
 
-            <div className="md:sticky md:top-20">
+            <div className="w-full">
               <FilterBar
                 genres={genres}
                 filters={filters}

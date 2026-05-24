@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Star,
@@ -168,12 +168,13 @@ export default function Detail({ mediaType }: DetailPageProps) {
             {/* Genres */}
             <div className="flex flex-wrap gap-2 mb-3">
               {detail.genres?.map((g) => (
-                <span
+                <Link
                   key={g.id}
-                  className="text-xs bg-cinema-hover border border-cinema-border text-cinema-muted px-3 py-1 rounded-full font-body"
+                  to={`/${mediaType === "movie" ? "movies" : "tv"}?genre=${g.id}`}
+                  className="text-xs bg-cinema-hover border border-cinema-border text-cinema-muted hover:text-white hover:border-cinema-accent px-3 py-1 rounded-full font-body transition-colors"
                 >
                   {g.name}
-                </span>
+                </Link>
               ))}
             </div>
 

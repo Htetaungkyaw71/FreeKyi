@@ -74,7 +74,7 @@ export function FilterBar({
           Genre
         </label>
         <div className="flex flex-wrap gap-2">
-          {genres.slice(0, 12).map((g) => (
+          {genres.map((g) => (
             <button
               key={g.id}
               onClick={() =>
