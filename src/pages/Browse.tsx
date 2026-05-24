@@ -161,10 +161,11 @@ export default function Browse({ mediaType }: BrowseProps) {
               transform transition-transform duration-300 ease-in-out
               ${showFilterMobile ? "translate-y-0" : "translate-y-full"} 
               md:translate-y-0
+              max-h-[85dvh]
               md:block w-full md:w-64 md:flex-shrink-0
               rounded-t-2xl md:rounded-none
               border-t border-cinema-border md:border-0
-              max-h-[85vh] overflow-y-auto md:max-h-none md:overflow-visible
+             overflow-y-auto md:max-h-none md:overflow-visible
               p-6 md:p-0
             `}
           >
