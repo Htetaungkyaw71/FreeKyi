@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --plyr-color-main: #e50914;
+  --plyr-video-background: #0a0a0f;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: #0a0a0f;
+  color: #e5e7eb;
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0f; }
+::-webkit-scrollbar-thumb { background: #e50914; border-radius: 3px; }
+
+.skeleton {
+  background: linear-gradient(90deg, #12121a 25%, #1e1e2e 50%, #12121a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.swiper-pagination-bullet { background: #6b7280 !important; }
+.swiper-pagination-bullet-active { background: #e50914 !important; }
+.swiper-button-next, .swiper-button-prev { color: #e50914 !important; }
+
+.plyr--video { border-radius: 12px; overflow: hidden; }
+.plyr__control--overlaid { background: rgba(229, 9, 20, 0.85) !important; }
+.plyr--full-ui input[type=range] { color: #e50914 !important; }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-text-shadow { text-shadow: 0 2px 20px rgba(0,0,0,0.8); }
