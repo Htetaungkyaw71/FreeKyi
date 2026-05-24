@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Play,
   Star,
   Clock,
   Calendar,
@@ -46,8 +45,8 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const [recommendations, setRecommendations] = useState<(Movie | TVSeries)[]>(
     [],
   );
+  console.log(detail);
   const [loading, setLoading] = useState(true);
-  const [showPlayer, setShowPlayer] = useState(false);
   const [season, setSeason] = useState(1);
   const [episode, setEpisode] = useState(1);
 
@@ -57,7 +56,6 @@ export default function Detail({ mediaType }: DetailPageProps) {
   useEffect(() => {
     if (!numId) return;
     setLoading(true);
-    setShowPlayer(false);
     setDetail(null);
 
     const fetchAll = async () => {
@@ -239,14 +237,6 @@ export default function Detail({ mediaType }: DetailPageProps) {
             {/* Actions */}
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => setShowPlayer(!showPlayer)}
-                className="flex items-center gap-2 bg-cinema-accent hover:bg-red-700 text-white font-body font-semibold px-6 py-3 rounded-full transition-all duration-200 hover:scale-105 shadow-lg shadow-cinema-accent/30"
-              >
-                <Play className="w-4 h-4 fill-white" />
-                {showPlayer ? "Hide Player" : "Watch Now"}
-              </button>
-
-              <button
                 onClick={() =>
                   detail &&
                   toggle({
@@ -273,67 +263,63 @@ export default function Detail({ mediaType }: DetailPageProps) {
         </div>
 
         {/* Player Section */}
-        {showPlayer && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="mt-10"
-          >
-            <h2 className="font-display text-2xl text-white mb-4">
-              Now Playing
-            </h2>
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="mt-10"
+        >
+          <h2 className="font-display text-2xl text-white mb-4">Now Playing</h2>
 
-            {/* TV Episode Selector */}
-            {mediaType === "tv" &&
-              tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
-                <div className="flex gap-3 mb-4 flex-wrap">
-                  <div className="relative">
-                    <select
-                      value={season}
-                      onChange={(e) => {
-                        setSeason(Number(e.target.value));
-                        setEpisode(1);
-                      }}
-                      className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
-                    >
-                      {tvSeasons
-                        .filter((s) => s.season_number > 0)
-                        .map((s) => (
-                          <option key={s.id} value={s.season_number}>
-                            Season {s.season_number}
-                          </option>
-                        ))}
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
-                  </div>
-
-                  <div className="relative">
-                    <select
-                      value={episode}
-                      onChange={(e) => setEpisode(Number(e.target.value))}
-                      className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
-                    >
-                      {Array.from(
-                        {
-                          length:
-                            tvSeasons.find((s) => s.season_number === season)
-                              ?.episode_count ?? 1,
-                        },
-                        (_, i) => (
-                          <option key={i + 1} value={i + 1}>
-                            Episode {i + 1}
-                          </option>
-                        ),
-                      )}
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
-                  </div>
+          {/* TV Episode Selector */}
+          {mediaType === "tv" &&
+            tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
+              <div className="flex gap-3 mb-4 flex-wrap">
+                <div className="relative">
+                  <select
+                    value={season}
+                    onChange={(e) => {
+                      setSeason(Number(e.target.value));
+                      setEpisode(1);
+                    }}
+                    className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
+                  >
+                    {tvSeasons
+                      .filter((s) => s.season_number > 0)
+                      .map((s) => (
+                        <option key={s.id} value={s.season_number}>
+                          Season {s.season_number}
+                        </option>
+                      ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
                 </div>
-              )}
 
-            <EmbedPlayer embedUrl={embedUrl} title={title} />
-          </motion.div>
-        )}
+                <div className="relative">
+                  <select
+                    value={episode}
+                    onChange={(e) => setEpisode(Number(e.target.value))}
+                    className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
+                  >
+                    {Array.from(
+                      {
+                        length:
+                          tvSeasons.find((s) => s.season_number === season)
+                            ?.episode_count ?? 1,
+                      },
+                      (_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          Episode {i + 1}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
+                </div>
+              </div>
+            )}
+
+          <EmbedPlayer embedUrl={embedUrl} title={title} />
+        </motion.div>
 
         {/* Cast */}
         {cast.length > 0 && (

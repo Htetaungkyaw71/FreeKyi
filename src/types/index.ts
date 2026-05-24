@@ -13,7 +13,7 @@ export interface Movie {
   genre_ids: number[];
   adult: boolean;
   popularity: number;
-  media_type?: 'movie' | 'tv';
+  media_type?: "movie" | "tv";
 }
 
 export interface TVSeries {
@@ -30,7 +30,7 @@ export interface TVSeries {
   release_date?: string;
   genre_ids: number[];
   popularity: number;
-  media_type?: 'tv';
+  media_type?: "tv";
 }
 
 export interface Genre {
@@ -38,19 +38,28 @@ export interface Genre {
   name: string;
 }
 
-export interface MovieDetail extends Omit<Movie, 'genre_ids'> {
+export interface MovieDetail extends Omit<Movie, "genre_ids"> {
   genres: Genre[];
   runtime: number;
   status: string;
   tagline: string;
   budget: number;
   revenue: number;
-  production_companies: { id: number; name: string; logo_path: string | null }[];
+  production_companies: {
+    id: number;
+    name: string;
+    logo_path: string | null;
+  }[];
   spoken_languages: { english_name: string; name: string }[];
-  belongs_to_collection: { id: number; name: string; poster_path: string; backdrop_path: string } | null;
+  belongs_to_collection: {
+    id: number;
+    name: string;
+    poster_path: string;
+    backdrop_path: string;
+  } | null;
 }
 
-export interface TVDetail extends Omit<TVSeries, 'genre_ids'> {
+export interface TVDetail extends Omit<TVSeries, "genre_ids"> {
   genres: Genre[];
   number_of_seasons: number;
   number_of_episodes: number;
@@ -58,6 +67,12 @@ export interface TVDetail extends Omit<TVSeries, 'genre_ids'> {
   tagline: string;
   networks: { id: number; name: string; logo_path: string | null }[];
   seasons: Season[];
+  production_companies: {
+    id: number;
+    name: string;
+    logo_path: string | null;
+  }[];
+  spoken_languages: { english_name: string; name: string }[];
 }
 
 export interface Season {
@@ -90,7 +105,7 @@ export interface CreditsResponse {
   crew: { id: number; name: string; job: string; department: string }[];
 }
 
-export type MediaType = 'movie' | 'tv';
+export type MediaType = "movie" | "tv";
 
 export interface FilterState {
   genre: number | null;

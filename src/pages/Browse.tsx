@@ -39,7 +39,7 @@ export default function Browse({ mediaType }: BrowseProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [showFilterMobile, setShowFilterMobile] = useState(false);
 
-  // Initialize from URL params
+  // Initialize from URL params and reset on unmount
   useEffect(() => {
     const genreParam = searchParams.get("genre");
     if (genreParam) {
@@ -47,7 +47,13 @@ export default function Browse({ mediaType }: BrowseProps) {
         dispatch(setMovieFilter({ genre: Number(genreParam) }));
       else dispatch(setTVFilter({ genre: Number(genreParam) }));
     }
-  }, []);
+
+    // Reset filters when unmounting or changing media type
+    return () => {
+      dispatch(resetMovieFilters());
+      dispatch(resetTVFilters());
+    };
+  }, [dispatch, mediaType]); // removed searchParams to avoid resetting during URL changes
 
   useEffect(() => {
     const fetchGenres = async () => {
