@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MediaCard } from "../components/cards/MediaCard";
@@ -14,14 +14,7 @@ import {
   getUpcomingMovies,
   getAiringTodayTV,
 } from "../services/tmdb";
-import { useAppDispatch, useAppSelector } from "../hooks/useStore";
-import {
-  setMovieFilter,
-  setTVFilter,
-  resetMovieFilters,
-  resetTVFilters,
-} from "../store/slices/filtersSlice";
-import type { Movie, TVSeries, Genre } from "../types";
+import type { Movie, TVSeries, Genre, FilterState } from "../types";
 import { SlidersHorizontal, X } from "lucide-react";
 
 interface BrowseProps {
@@ -29,42 +22,30 @@ interface BrowseProps {
 }
 
 export default function Browse({ mediaType }: BrowseProps) {
-  const dispatch = useAppDispatch();
-  const filters = useAppSelector((s) =>
-    mediaType === "movie" ? s.filters.movie : s.filters.tv,
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filters: FilterState = useMemo(
+    () => ({
+      genre: searchParams.get("genre")
+        ? Number(searchParams.get("genre"))
+        : null,
+      rating: searchParams.get("rating")
+        ? Number(searchParams.get("rating"))
+        : null,
+      year: searchParams.get("year") ? Number(searchParams.get("year")) : null,
+      country: searchParams.get("country") || null,
+      sortBy: searchParams.get("sortBy") || "popularity.desc",
+    }),
+    [searchParams],
   );
-  const [searchParams] = useSearchParams();
+
+  const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1;
 
   const [items, setItems] = useState<(Movie | TVSeries)[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showFilterMobile, setShowFilterMobile] = useState(false);
-
-  // Initialize from URL params and reset on unmount
-  useEffect(() => {
-    const genreParam = searchParams.get("genre");
-    const countryParam = searchParams.get("country");
-
-    if (genreParam || countryParam) {
-      const updates: any = {};
-      if (genreParam) updates.genre = Number(genreParam);
-      if (countryParam) updates.country = countryParam;
-
-      if (mediaType === "movie") {
-        dispatch(setMovieFilter(updates));
-      } else {
-        dispatch(setTVFilter(updates));
-      }
-    }
-
-    // Reset filters when unmounting or changing media type
-    return () => {
-      dispatch(resetMovieFilters());
-      dispatch(resetTVFilters());
-    };
-  }, [dispatch, mediaType]); // removed searchParams to avoid resetting during URL changes
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -146,20 +127,49 @@ export default function Browse({ mediaType }: BrowseProps) {
   }, [mediaType, filters, page, searchParams]);
 
   const handlePageChange = (p: number) => {
-    setPage(p);
+    const newParams = new URLSearchParams(searchParams);
+    if (p === 1) newParams.delete("page");
+    else newParams.set("page", String(p));
+    setSearchParams(newParams);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleFilterChange = (f: Parameters<typeof setMovieFilter>[0]) => {
-    if (mediaType === "movie") dispatch(setMovieFilter(f));
-    else dispatch(setTVFilter(f));
-    setPage(1);
+  const handleFilterChange = (f: Partial<FilterState>) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (f.genre !== undefined) {
+      if (f.genre === null) newParams.delete("genre");
+      else newParams.set("genre", String(f.genre));
+    }
+    if (f.rating !== undefined) {
+      if (f.rating === null) newParams.delete("rating");
+      else newParams.set("rating", String(f.rating));
+    }
+    if (f.year !== undefined) {
+      if (f.year === null) newParams.delete("year");
+      else newParams.set("year", String(f.year));
+    }
+    if (f.country !== undefined) {
+      if (f.country === null) newParams.delete("country");
+      else newParams.set("country", f.country);
+    }
+    if (f.sortBy !== undefined) {
+      if (f.sortBy === "popularity.desc" || f.sortBy === null)
+        newParams.delete("sortBy");
+      else newParams.set("sortBy", f.sortBy);
+    }
+    newParams.delete("page");
+    setSearchParams(newParams);
   };
 
   const handleReset = () => {
-    if (mediaType === "movie") dispatch(resetMovieFilters());
-    else dispatch(resetTVFilters());
-    setPage(1);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("genre");
+    newParams.delete("rating");
+    newParams.delete("year");
+    newParams.delete("country");
+    newParams.delete("sortBy");
+    newParams.delete("page");
+    setSearchParams(newParams);
   };
 
   const baseTitle = mediaType === "movie" ? "Movies" : "TV Series";
