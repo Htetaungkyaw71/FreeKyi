@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-3">
-              <img src="/f.png" width={40} height={40} alt="" />
+              <img src="/favicon.svg" width={40} height={40} alt="" />
               {/* <div className="w-7 h-7 bg-cinema-accent rounded-sm flex items-center justify-center">
                 <Clapperboard className="w-3.5 h-3.5 text-white" />
               </div> */}

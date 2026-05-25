@@ -2,9 +2,11 @@ import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Provider } from "react-redux";
 import { AnimatePresence } from "framer-motion";
+import { HelmetProvider } from "react-helmet-async";
 import { store } from "./store";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
+import { PWAInstallPrompt } from "./components/ui/PWAinstallprompt";
 
 const Home = lazy(() => import("./pages/Home"));
 const Browse = lazy(() => import("./pages/Browse"));
@@ -22,6 +24,7 @@ const PageLoader = () => (
 
 function AppRoutes() {
   const location = useLocation();
+  const isDetailPage = /^\/(movie|tv)\/\d+/.test(location.pathname);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,7 +33,7 @@ function AppRoutes() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen">
+      <main className={`min-h-screen md:pb-0 ${isDetailPage ? "pb-10" : "pb-20"}`}>
         <AnimatePresence mode="wait">
           <Suspense fallback={<PageLoader />}>
             <Routes location={location} key={location.pathname}>
@@ -45,6 +48,7 @@ function AppRoutes() {
             </Routes>
           </Suspense>
         </AnimatePresence>
+        <PWAInstallPrompt />
       </main>
       <Footer />
     </>
@@ -54,9 +58,11 @@ function AppRoutes() {
 function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <HelmetProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </HelmetProvider>
     </Provider>
   );
 }

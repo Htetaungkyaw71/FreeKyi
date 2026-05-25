@@ -15,23 +15,67 @@ import {
 } from "../services/tmdb";
 import type { Movie, TVSeries } from "../types";
 import { useWatchlist } from "../hooks/useWatchlist";
+import { SEO } from "../components/seo/SEO";
+import { seoConfig } from "../components/seo/config";
+
+interface HomePageData {
+  trending: Movie[];
+  nowPlaying: Movie[];
+  upcoming: Movie[];
+  horror: Movie[];
+  action: Movie[];
+  animation: Movie[];
+  trendingTV: TVSeries[];
+  airingToday: TVSeries[];
+  korean: TVSeries[];
+}
+
+const HOME_CACHE_TTL = 1000 * 60 * 10;
+let homeCache: { data: HomePageData; updatedAt: number } | null = null;
+
+function isHomeCacheFresh() {
+  return homeCache ? Date.now() - homeCache.updatedAt < HOME_CACHE_TTL : false;
+}
 
 export default function Home() {
-  const [trending, setTrending] = useState<Movie[]>([]);
-  const [nowPlaying, setNowPlaying] = useState<Movie[]>([]);
-  const [upcoming, setUpcoming] = useState<Movie[]>([]);
-  const [horror, setHorror] = useState<Movie[]>([]);
-  const [action, setAction] = useState<Movie[]>([]);
-  const [animation, setAnimation] = useState<Movie[]>([]);
-  const [trendingTV, setTrendingTV] = useState<TVSeries[]>([]);
-  const [airingToday, setAiringToday] = useState<TVSeries[]>([]);
-  const [korean, setKorean] = useState<TVSeries[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [trending, setTrending] = useState<Movie[]>(
+    () => homeCache?.data.trending ?? [],
+  );
+  const [nowPlaying, setNowPlaying] = useState<Movie[]>(
+    () => homeCache?.data.nowPlaying ?? [],
+  );
+  const [upcoming, setUpcoming] = useState<Movie[]>(
+    () => homeCache?.data.upcoming ?? [],
+  );
+  const [horror, setHorror] = useState<Movie[]>(
+    () => homeCache?.data.horror ?? [],
+  );
+  const [action, setAction] = useState<Movie[]>(
+    () => homeCache?.data.action ?? [],
+  );
+  const [animation, setAnimation] = useState<Movie[]>(
+    () => homeCache?.data.animation ?? [],
+  );
+  const [trendingTV, setTrendingTV] = useState<TVSeries[]>(
+    () => homeCache?.data.trendingTV ?? [],
+  );
+  const [airingToday, setAiringToday] = useState<TVSeries[]>(
+    () => homeCache?.data.airingToday ?? [],
+  );
+  const [korean, setKorean] = useState<TVSeries[]>(
+    () => homeCache?.data.korean ?? [],
+  );
+  const [loading, setLoading] = useState(() => !homeCache);
 
   const { watchlist } = useWatchlist();
 
   useEffect(() => {
+    if (isHomeCacheFresh()) return;
+
+    let isActive = true;
     const fetchAll = async () => {
+      if (!homeCache) setLoading(true);
+
       try {
         const [t, np, up, hor, act, anim, ttv, at, kr] = await Promise.all([
           getTrendingMovies(),
@@ -44,100 +88,150 @@ export default function Home() {
           getAiringTodayTV(),
           getKoreanSeries(),
         ]);
-        setTrending(t.data.results);
-        setNowPlaying(np.data.results);
-        setUpcoming(up.data.results);
-        setHorror(hor.data.results);
-        setAction(act.data.results);
-        setAnimation(anim.data.results);
-        setTrendingTV(ttv.data.results);
-        setAiringToday(at.data.results);
-        setKorean(kr.data.results);
+        const data = {
+          trending: t.data.results,
+          nowPlaying: np.data.results,
+          upcoming: up.data.results,
+          horror: hor.data.results,
+          action: act.data.results,
+          animation: anim.data.results,
+          trendingTV: ttv.data.results,
+          airingToday: at.data.results,
+          korean: kr.data.results,
+        };
+
+        homeCache = { data, updatedAt: Date.now() };
+
+        if (!isActive) return;
+        setTrending(data.trending);
+        setNowPlaying(data.nowPlaying);
+        setUpcoming(data.upcoming);
+        setHorror(data.horror);
+        setAction(data.action);
+        setAnimation(data.animation);
+        setTrendingTV(data.trendingTV);
+        setAiringToday(data.airingToday);
+        setKorean(data.korean);
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        if (isActive) setLoading(false);
       }
     };
     fetchAll();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Hero movies={trending} loading={loading} />
+    <>
+      <SEO
+        title="Watch Free Movies & TV Series Online"
+        description="Watch free movies and TV series online on FreeKyi. Explore trending films, new releases, Korean dramas, action, horror, animation, and popular TV shows."
+        path="/"
+        keywords={[
+          "free movies",
+          "watch movies online",
+          "free TV series",
+          "stream movies free",
+          "Korean dramas",
+          "new movies online",
+        ]}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: seoConfig.siteName,
+          url: seoConfig.siteUrl,
+          description:
+            "Watch free movies and TV series online, including trending films, new releases, Korean dramas, and popular TV shows.",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: {
+              "@type": "EntryPoint",
+              urlTemplate: `${seoConfig.siteUrl}/search?q={search_term_string}`,
+            },
+            "query-input": "required name=search_term_string",
+          },
+        }}
+      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Hero movies={trending} loading={loading} />
 
-      <div className="mt-8 space-y-10">
-        {watchlist.length > 0 && (
+        <div className="mt-8 space-y-10">
+          {watchlist.length > 0 && (
+            <CategoryRow
+              title="Continue Watching"
+              items={watchlist}
+              type="movie" // CategoryRow handles mixed types based on item.media_type automatically if passed correctly
+              viewAllLink="/watchlist"
+              loading={loading}
+            />
+          )}
           <CategoryRow
-            title="Continue Watching"
-            items={watchlist}
-            type="movie" // CategoryRow handles mixed types based on item.media_type automatically if passed correctly
-            viewAllLink="/watchlist"
-            loading={false}
+            title="Now Playing"
+            items={nowPlaying}
+            type="movie"
+            viewAllLink="/movies?sort=now_playing"
+            loading={loading}
           />
-        )}
-        <CategoryRow
-          title="Now Playing"
-          items={nowPlaying}
-          type="movie"
-          viewAllLink="/movies?sort=now_playing"
-          loading={loading}
-        />
-        <CategoryRow
-          title="New Releases"
-          items={upcoming}
-          type="movie"
-          viewAllLink="/movies?sort=upcoming"
-          loading={loading}
-        />
-        <CategoryRow
-          title="Trending TV Series"
-          items={trendingTV}
-          type="tv"
-          viewAllLink="/tv"
-          loading={loading}
-        />
-        <CategoryRow
-          title="Korean Dramas"
-          items={korean}
-          type="tv"
-          viewAllLink="/tv?country=KR"
-          loading={loading}
-        />
-        <CategoryRow
-          title="Action"
-          items={action}
-          type="movie"
-          viewAllLink="/movies?genre=28"
-          loading={loading}
-        />
-        <CategoryRow
-          title="Horror"
-          items={horror}
-          type="movie"
-          viewAllLink="/movies?genre=27"
-          loading={loading}
-        />
-        <CategoryRow
-          title="Animation"
-          items={animation}
-          type="movie"
-          viewAllLink="/movies?genre=16"
-          loading={loading}
-        />
+          <CategoryRow
+            title="New Releases"
+            items={upcoming}
+            type="movie"
+            viewAllLink="/movies?sort=upcoming"
+            loading={loading}
+          />
+          <CategoryRow
+            title="Trending TV Series"
+            items={trendingTV}
+            type="tv"
+            viewAllLink="/tv"
+            loading={loading}
+          />
+          <CategoryRow
+            title="Korean Dramas"
+            items={korean}
+            type="tv"
+            viewAllLink="/tv?country=KR"
+            loading={loading}
+          />
+          <CategoryRow
+            title="Action"
+            items={action}
+            type="movie"
+            viewAllLink="/movies?genre=28"
+            loading={loading}
+          />
+          <CategoryRow
+            title="Horror"
+            items={horror}
+            type="movie"
+            viewAllLink="/movies?genre=27"
+            loading={loading}
+          />
+          <CategoryRow
+            title="Animation"
+            items={animation}
+            type="movie"
+            viewAllLink="/movies?genre=16"
+            loading={loading}
+          />
 
-        <CategoryRow
-          title="Airing Today"
-          items={airingToday}
-          type="tv"
-          viewAllLink="/tv?sort=airing_today"
-          loading={loading}
-        />
-      </div>
-    </motion.div>
+          <CategoryRow
+            title="Airing Today"
+            items={airingToday}
+            type="tv"
+            viewAllLink="/tv?sort=airing_today"
+            loading={loading}
+          />
+        </div>
+      </motion.div>
+    </>
   );
 }

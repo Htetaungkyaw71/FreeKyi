@@ -4,6 +4,7 @@ import { Bookmark } from "lucide-react";
 import { MediaCard } from "../components/cards/MediaCard";
 import { Pagination } from "../components/ui/Pagination";
 import { useAppSelector } from "../hooks/useStore";
+import { SEO } from "../components/seo/SEO";
 
 export default function Bookmarks() {
   const bookmarks = useAppSelector((s) => s.bookmarks.items);
@@ -29,12 +30,19 @@ export default function Bookmarks() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen pt-20 pb-16"
-    >
-      <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
+    <>
+      <SEO
+        title="My Bookmarks"
+        description="Your saved movies and TV series on FreeKyi."
+        path="/bookmarks"
+        noIndex
+      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen pt-20 pb-16"
+      >
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
         <div className="mb-8">
           <h1 className="font-display text-4xl md:text-5xl text-white">
             My Bookmarks
@@ -87,7 +95,8 @@ export default function Bookmarks() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </motion.div>
+        </div>
+      </motion.div>
+    </>
   );
 }

@@ -42,7 +42,7 @@ const watchlistSlice = createSlice({
       state.items.unshift(action.payload);
       try {
         localStorage.setItem("freekyi_watchlist", JSON.stringify(state.items));
-      } catch (e) {
+      } catch {
         // ignore
       }
     },
@@ -81,7 +81,7 @@ const watchlistSlice = createSlice({
       );
       try {
         localStorage.setItem("freekyi_watchlist", JSON.stringify(state.items));
-      } catch (e) {
+      } catch {
         // ignore
       }
     },

@@ -16,13 +16,45 @@ import {
 } from "../services/tmdb";
 import type { Movie, TVSeries, Genre, FilterState } from "../types";
 import { SlidersHorizontal, X } from "lucide-react";
+import { SEO } from "../components/seo/SEO";
+import { seoConfig } from "../components/seo/config";
 
 interface BrowseProps {
   mediaType: "movie" | "tv";
 }
 
+interface BrowsePageData {
+  items: (Movie | TVSeries)[];
+  totalPages: number;
+}
+
+const BROWSE_CACHE_TTL = 1000 * 60 * 10;
+const browseCache = new Map<
+  string,
+  { data: BrowsePageData; updatedAt: number }
+>();
+const genreCache = new Map<
+  "movie" | "tv",
+  { data: Genre[]; updatedAt: number }
+>();
+
+function getFreshBrowseCache(key: string) {
+  const cached = browseCache.get(key);
+  if (!cached || Date.now() - cached.updatedAt >= BROWSE_CACHE_TTL) return null;
+  return cached.data;
+}
+
+function getFreshGenreCache(mediaType: "movie" | "tv") {
+  const cached = genreCache.get(mediaType);
+  if (!cached || Date.now() - cached.updatedAt >= BROWSE_CACHE_TTL) return null;
+  return cached.data;
+}
+
 export default function Browse({ mediaType }: BrowseProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const browseCacheKey = `${mediaType}:${searchParams.toString()}`;
+  const initialBrowseData = getFreshBrowseCache(browseCacheKey);
+  const initialGenres = getFreshGenreCache(mediaType);
 
   const filters: FilterState = useMemo(
     () => ({
@@ -41,28 +73,62 @@ export default function Browse({ mediaType }: BrowseProps) {
 
   const page = searchParams.get("page") ? Number(searchParams.get("page")) : 1;
 
-  const [items, setItems] = useState<(Movie | TVSeries)[]>([]);
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [totalPages, setTotalPages] = useState(1);
+  const [items, setItems] = useState<(Movie | TVSeries)[]>(
+    () => initialBrowseData?.items ?? [],
+  );
+  const [genres, setGenres] = useState<Genre[]>(() => initialGenres ?? []);
+  const [loading, setLoading] = useState(() => !initialBrowseData);
+  const [totalPages, setTotalPages] = useState(
+    () => initialBrowseData?.totalPages ?? 1,
+  );
   const [showFilterMobile, setShowFilterMobile] = useState(false);
 
   useEffect(() => {
+    const cachedGenres = getFreshGenreCache(mediaType);
+    if (cachedGenres) {
+      setGenres(cachedGenres);
+      return;
+    }
+
+    let isActive = true;
     const fetchGenres = async () => {
       try {
         const res =
           mediaType === "movie" ? await getMovieGenres() : await getTVGenres();
+        genreCache.set(mediaType, {
+          data: res.data.genres,
+          updatedAt: Date.now(),
+        });
+        if (!isActive) return;
         setGenres(res.data.genres);
       } catch (e) {
         console.error(e);
       }
     };
     fetchGenres();
+
+    return () => {
+      isActive = false;
+    };
   }, [mediaType]);
 
   useEffect(() => {
+    const cachedData = getFreshBrowseCache(browseCacheKey);
+    if (cachedData) {
+      setItems(cachedData.items);
+      setTotalPages(cachedData.totalPages);
+      setLoading(false);
+      return;
+    }
+
+    let isActive = true;
     const fetchItems = async () => {
-      setLoading(true);
+      if (!browseCache.get(browseCacheKey)) {
+        setItems([]);
+        setTotalPages(1);
+        setLoading(true);
+      }
+
       try {
         const sortParam = searchParams.get("sort");
         const hasCustomFilters =
@@ -115,16 +181,26 @@ export default function Browse({ mediaType }: BrowseProps) {
             data = res.data;
           }
         }
+        browseCache.set(browseCacheKey, {
+          data: { items: data.results, totalPages: data.total_pages },
+          updatedAt: Date.now(),
+        });
+
+        if (!isActive) return;
         setItems(data.results);
         setTotalPages(data.total_pages);
       } catch (e) {
         console.error(e);
       } finally {
-        setLoading(false);
+        if (isActive) setLoading(false);
       }
     };
     fetchItems();
-  }, [mediaType, filters, page, searchParams]);
+
+    return () => {
+      isActive = false;
+    };
+  }, [mediaType, filters, page, searchParams, browseCacheKey]);
 
   const handlePageChange = (p: number) => {
     const newParams = new URLSearchParams(searchParams);
@@ -185,14 +261,57 @@ export default function Browse({ mediaType }: BrowseProps) {
   else if (filters.country === "KR") title = `Korean Dramas`;
 
   const genreLabel = genres.find((g) => g.id === filters.genre)?.name;
+  const pageTitle = genreLabel ? `${genreLabel} ${baseTitle}` : title;
+  const browsePathBase = mediaType === "movie" ? "/movies" : "/tv";
+  const browseSearch = searchParams.toString();
+  const browsePath = browseSearch
+    ? `${browsePathBase}?${browseSearch}`
+    : browsePathBase;
+  const mediaLabel = mediaType === "movie" ? "movies" : "TV series";
+  const browseDescription = `Browse ${pageTitle.toLowerCase()} on FreeKyi. Find popular ${mediaLabel}, filter by genre, rating, year, country, and stream titles online.`;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen pt-20 pb-16"
-    >
-      <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
+    <>
+      <SEO
+        title={`${pageTitle} Online`}
+        description={browseDescription}
+        path={browsePath}
+        keywords={[
+          `${pageTitle.toLowerCase()} online`,
+          `free ${mediaLabel}`,
+          `watch ${mediaLabel} online`,
+          "free streaming",
+        ]}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: `${pageTitle} Online`,
+          url: `${seoConfig.siteUrl}${browsePath}`,
+          description: browseDescription,
+          mainEntity: {
+            "@type": "ItemList",
+            itemListElement: items.slice(0, 12).map((item, index) => {
+              const itemType =
+                (item as { media_type?: string }).media_type || mediaType;
+              const itemTitle =
+                (item as Movie).title || (item as TVSeries).name;
+
+              return {
+                "@type": "ListItem",
+                position: index + 1,
+                url: `${seoConfig.siteUrl}/${itemType}/${item.id}`,
+                name: itemTitle,
+              };
+            }),
+          },
+        }}
+      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen pt-20 pb-16"
+      >
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -216,7 +335,7 @@ export default function Browse({ mediaType }: BrowseProps) {
           {/* Mobile Overlay */}
           {showFilterMobile && (
             <div
-              className="fixed inset-0 bg-black/80 z-40 md:hidden"
+              className="fixed inset-0 bg-black/80 z-[90] md:hidden"
               onClick={() => setShowFilterMobile(false)}
             />
           )}
@@ -225,7 +344,7 @@ export default function Browse({ mediaType }: BrowseProps) {
 
           <aside
             className={`
-            fixed md:sticky md:top-24 md:self-start inset-x-0 z-50 
+            fixed md:sticky md:top-24 md:self-start inset-x-0 z-[100]
             bg-cinema-bg md:bg-transparent
             transform transition-transform duration-300 ease-in-out
             ${showFilterMobile ? "translate-y-0" : "translate-y-[110%]"} 
@@ -293,7 +412,8 @@ export default function Browse({ mediaType }: BrowseProps) {
             )}
           </div>
         </div>
-      </div>
-    </motion.div>
+        </div>
+      </motion.div>
+    </>
   );
 }

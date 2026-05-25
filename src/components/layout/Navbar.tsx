@@ -1,32 +1,83 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bookmark, ListPlus, Menu, X } from "lucide-react";
+import { Search, Bookmark, ListPlus, Home, Film, Tv } from "lucide-react";
 import { useAppSelector } from "../../hooks/useStore";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileNavHidden, setMobileNavHidden] = useState(false);
   const [query, setQuery] = useState("");
+  const lastScrollY = useRef(0);
   const navigate = useNavigate();
   const location = useLocation();
   const bookmarkCount = useAppSelector((s) => s.bookmarks.items.length);
   const watchlistCount = useAppSelector((s) => s.watchlist.items.length);
+  const isDetailPage = /^\/(movie|tv)\/\d+/.test(location.pathname);
 
   useEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 50);
-      setSearchOpen(false);
+      const currentScrollY = window.scrollY;
+      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+      const scrollDelta = currentScrollY - lastScrollY.current;
+
+      setScrolled(currentScrollY > 50);
+
+      if (searchOpen && currentScrollY > 20) {
+        setSearchOpen(false);
+      }
+
+      if (!isMobile || searchOpen) {
+        setMobileNavHidden(false);
+      } else if (currentScrollY < 24) {
+        setMobileNavHidden(false);
+      } else if (scrollDelta > 8) {
+        setMobileNavHidden(true);
+      } else if (scrollDelta < -8) {
+        setMobileNavHidden(false);
+      }
+
+      lastScrollY.current = Math.max(0, currentScrollY);
     };
     window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    window.addEventListener("resize", onScroll);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [searchOpen]);
 
   useEffect(() => {
-    setMobileOpen(false);
     setSearchOpen(false);
+    setMobileNavHidden(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const updateViewportBottom = () => {
+      const viewport = window.visualViewport;
+      const bottomOffset = viewport
+        ? Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)
+        : 0;
+
+      document.documentElement.style.setProperty(
+        "--visual-viewport-bottom",
+        `${bottomOffset}px`,
+      );
+    };
+
+    updateViewportBottom();
+    window.visualViewport?.addEventListener("resize", updateViewportBottom);
+    window.visualViewport?.addEventListener("scroll", updateViewportBottom);
+    window.addEventListener("resize", updateViewportBottom);
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", updateViewportBottom);
+      window.visualViewport?.removeEventListener("scroll", updateViewportBottom);
+      window.removeEventListener("resize", updateViewportBottom);
+    };
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,23 +93,32 @@ export function Navbar() {
     { label: "Movies", to: "/movies" },
     { label: "TV Series", to: "/tv" },
   ];
+  const mobileNavLinks = [
+    { label: "Home", to: "/", icon: Home },
+    { label: "Movies", to: "/movies", icon: Film },
+    { label: "TV", to: "/tv", icon: Tv },
+    { label: "Saved", to: "/bookmarks", icon: Bookmark, count: bookmarkCount },
+    { label: "List", to: "/watchlist", icon: ListPlus, count: watchlistCount },
+  ];
 
   return (
     <>
       <motion.nav
         className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ${
+          isDetailPage ? "hidden md:block" : ""
+        } ${
           scrolled
             ? "bg-cinema-bg/95 backdrop-blur-md shadow-xl shadow-black/30"
             : "bg-transparent"
         }`}
         initial={{ y: -100 }}
-        animate={{ y: 0 }}
+        animate={{ y: mobileNavHidden ? -96 : 0 }}
         transition={{ duration: 0.4 }}
       >
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex justify-center items-center gap-2 group">
-            <img src="/f.png" width={70} height={70} alt="" />
+            <img src="/favicon.svg" width={70} height={70} alt="" />
             {/* <div className="w-8 h-8 bg-cinema-accent rounded-sm flex items-center justify-center">
               <Clapperboard className="w-4 h-4 text-white" />
             </div> */}
@@ -94,8 +154,12 @@ export function Navbar() {
           <div className="flex items-center gap-3">
             {location.pathname !== "/search" && (
               <button
-                onClick={() => setSearchOpen(!searchOpen)}
+                onClick={() => {
+                  setMobileNavHidden(false);
+                  setSearchOpen(!searchOpen);
+                }}
                 className="w-9 h-9 rounded-full flex items-center justify-center text-cinema-muted hover:text-white hover:bg-cinema-hover transition-all"
+                aria-label="Search"
               >
                 <Search className="w-5 h-5" />
               </button>
@@ -125,19 +189,6 @@ export function Navbar() {
               )}
             </Link>
 
-            <button
-              className="md:hidden w-9 h-9 rounded-full flex items-center justify-center text-cinema-muted hover:text-white"
-              onClick={() => {
-                setMobileOpen(!mobileOpen);
-                setSearchOpen(false);
-              }}
-            >
-              {mobileOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </button>
           </div>
         </div>
 
@@ -171,60 +222,48 @@ export function Navbar() {
         </AnimatePresence>
       </motion.nav>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25 }}
-            className="fixed inset-y-0 right-0 w-64 z-40 bg-cinema-card border-l border-cinema-border shadow-2xl pt-16"
-          >
-            <div className="p-6 space-y-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="block font-body text-lg text-cinema-muted hover:text-white py-2 border-b border-cinema-border transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <Link
-                to="/watchlist"
-                className="block font-body text-lg text-cinema-muted hover:text-white py-2 border-b border-cinema-border"
-              >
-                Watchlist
-                {watchlistCount > 0 && (
-                  <span className="ml-2 bg-cinema-accent text-black font-bold text-xs px-2 py-0.5 rounded-full">
-                    {watchlistCount}
-                  </span>
-                )}
-              </Link>
-              <Link
-                to="/bookmarks"
-                className="block font-body text-lg text-cinema-muted hover:text-white py-2"
-              >
-                Bookmarks
-                {bookmarkCount > 0 && (
-                  <span className="ml-2 bg-cinema-accent text-black font-bold text-xs px-2 py-0.5 rounded-full">
-                    {bookmarkCount}
-                  </span>
-                )}
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <nav
+        className="fixed left-0 right-0 z-[70] md:hidden border-t border-cinema-border bg-cinema-bg/95 backdrop-blur-xl shadow-2xl shadow-black/60 pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out"
+        style={{
+          bottom: "var(--visual-viewport-bottom, 0px)",
+          transform: mobileNavHidden
+            ? "translateY(calc(100% + env(safe-area-inset-bottom) + 24px))"
+            : "translateY(0)",
+        }}
+      >
+        <div className="grid h-16 grid-cols-5">
+          {mobileNavLinks.map(({ label, to, icon: Icon, count }) => {
+            const active =
+              to === "/"
+                ? location.pathname === "/"
+                : location.pathname === to ||
+                  (to !== "/search" && location.pathname.startsWith(`${to}/`));
 
-      {/* Overlay */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+            return (
+              <Link
+                key={to}
+                to={to}
+                aria-label={label}
+                className={`relative flex flex-col items-center justify-center gap-1 text-[11px] font-body font-medium transition-colors ${
+                  active ? "text-white" : "text-cinema-muted"
+                }`}
+              >
+                <Icon
+                  className={`h-5 w-5 ${
+                    active ? "text-cinema-accent" : "text-current"
+                  }`}
+                />
+                <span>{label}</span>
+                {count ? (
+                  <span className="absolute top-2 right-[calc(50%-1.35rem)] min-w-4 h-4 px-1 rounded-full bg-cinema-accent text-[9px] leading-4 text-black font-bold text-center">
+                    {count > 9 ? "9+" : count}
+                  </span>
+                ) : null}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </>
   );
 }

@@ -10,6 +10,36 @@ import { useDebounce } from "../hooks/useDebounce";
 import { useAppDispatch, useAppSelector } from "../hooks/useStore";
 import { setQuery, setActiveTab } from "../store/slices/searchSlice";
 import type { Movie, TVSeries } from "../types";
+import { SEO } from "../components/seo/SEO";
+import { seoConfig } from "../components/seo/config";
+
+type SearchTab = "all" | "movie" | "tv";
+type SearchResult = Partial<Movie & TVSeries> & {
+  id: number;
+  media_type?: "movie" | "tv" | "person";
+};
+
+interface SearchPageData {
+  results: (Movie | TVSeries)[];
+  totalResults: number;
+  totalPages: number;
+}
+
+const SEARCH_CACHE_TTL = 1000 * 60 * 10;
+const searchCache = new Map<
+  string,
+  { data: SearchPageData; updatedAt: number }
+>();
+
+function getSearchCacheKey(query: string, tab: SearchTab, page: number) {
+  return `${tab}:${page}:${query.trim().toLowerCase()}`;
+}
+
+function getFreshSearchCache(key: string) {
+  const cached = searchCache.get(key);
+  if (!cached || Date.now() - cached.updatedAt >= SEARCH_CACHE_TTL) return null;
+  return cached.data;
+}
 
 export default function SearchPage() {
   const dispatch = useAppDispatch();
@@ -22,12 +52,13 @@ export default function SearchPage() {
   const [totalPages, setTotalPages] = useState(1);
 
   const debouncedQuery = useDebounce(query, 400);
+  const searchCacheKey = getSearchCacheKey(debouncedQuery, activeTab, page);
 
   // Sync from URL
   useEffect(() => {
     const q = searchParams.get("q");
-    if (q) dispatch(setQuery(q));
-  }, []);
+    if (q && q !== query) dispatch(setQuery(q));
+  }, [dispatch, query, searchParams]);
 
   // Reset page on new search or tab
   useEffect(() => {
@@ -45,9 +76,23 @@ export default function SearchPage() {
     // Update URL
     setSearchParams({ q: debouncedQuery });
 
+    const cachedData = getFreshSearchCache(searchCacheKey);
+    if (cachedData) {
+      setResults(cachedData.results);
+      setTotalResults(cachedData.totalResults);
+      setTotalPages(cachedData.totalPages);
+      setLoading(false);
+      return;
+    }
+
     let isActive = true;
 
     const fetch = async () => {
+      if (!searchCache.get(searchCacheKey)) {
+        setResults([]);
+        setTotalResults(0);
+        setTotalPages(1);
+      }
       setLoading(true);
       try {
         let res;
@@ -61,7 +106,7 @@ export default function SearchPage() {
 
         if (!isActive) return;
 
-        const mappedResults = (res.data.results as any[]).map((r) => {
+        const mappedResults = (res.data.results as SearchResult[]).map((r) => {
           const mediaType =
             r.media_type || (activeTab === "tv" ? "tv" : "movie");
           return { ...r, media_type: mediaType };
@@ -71,6 +116,15 @@ export default function SearchPage() {
           (r) =>
             r.media_type !== "person" && (r.poster_path || r.backdrop_path),
         ) as (Movie | TVSeries)[];
+
+        searchCache.set(searchCacheKey, {
+          data: {
+            results: filtered,
+            totalResults: res.data.total_results,
+            totalPages: res.data.total_pages,
+          },
+          updatedAt: Date.now(),
+        });
 
         setResults(filtered);
         setTotalResults(res.data.total_results);
@@ -86,21 +140,69 @@ export default function SearchPage() {
     return () => {
       isActive = false;
     };
-  }, [debouncedQuery, activeTab, page]);
+  }, [debouncedQuery, activeTab, page, searchCacheKey, setSearchParams]);
 
   const tabs = [
     { id: "all", label: "All", icon: Layers },
     { id: "movie", label: "Movies", icon: Film },
     { id: "tv", label: "TV Series", icon: Tv },
   ] as const;
+  const trimmedQuery = debouncedQuery.trim();
+  const searchPath = trimmedQuery
+    ? `/search?q=${encodeURIComponent(trimmedQuery)}`
+    : "/search";
+  const searchTitle = trimmedQuery
+    ? `Search ${trimmedQuery} Free Movies & TV Series`
+    : "Search Free Movies & TV Series";
+  const searchDescription = trimmedQuery
+    ? `Search results for ${trimmedQuery} on FreeKyi. Find matching movies and TV series, watch trailers, compare ratings, and start streaming online.`
+    : "Search FreeKyi for free movies, TV series, Korean dramas, new releases, and trending titles to watch online.";
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen pt-20 pb-16"
-    >
-      <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
+    <>
+      <SEO
+        title={searchTitle}
+        description={searchDescription}
+        path={searchPath}
+        noIndex={!trimmedQuery}
+        keywords={[
+          trimmedQuery,
+          `${trimmedQuery} movie`,
+          `${trimmedQuery} series`,
+          "free movies search",
+          "watch movies online",
+        ].filter(Boolean)}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "SearchResultsPage",
+          name: searchTitle,
+          url: `${seoConfig.siteUrl}${searchPath}`,
+          description: searchDescription,
+          mainEntity: {
+            "@type": "ItemList",
+            itemListElement: results.slice(0, 12).map((item, index) => {
+              const type =
+                (item as { media_type?: string }).media_type === "tv"
+                  ? "tv"
+                  : "movie";
+              const title = (item as Movie).title || (item as TVSeries).name;
+
+              return {
+                "@type": "ListItem",
+                position: index + 1,
+                url: `${seoConfig.siteUrl}/${type}/${item.id}`,
+                name: title,
+              };
+            }),
+          },
+        }}
+      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen pt-20 pb-16"
+      >
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
         {/* Search Bar */}
         <div className="max-w-2xl mx-auto mb-8">
           {/* <h1 className="font-display text-4xl text-white text-center mb-6">
@@ -226,7 +328,8 @@ export default function SearchPage() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    </motion.div>
+        </div>
+      </motion.div>
+    </>
   );
 }
