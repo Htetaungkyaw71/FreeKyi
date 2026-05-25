@@ -348,9 +348,9 @@ export default function Detail({ mediaType }: DetailPageProps) {
 
           {mediaType === "tv" &&
             tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
-              <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-8 flex items-start gap-3 flex-wrap">
+              <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-8 flex flex-col md:flex-row md:items-start gap-3">
                 {/* Season dropdown */}
-                <div className="relative">
+                <div className="relative w-full md:w-auto">
                   <select
                     value={season}
                     onChange={(e) => {
@@ -358,7 +358,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
                       setEpisode(1);
                       setIsPlaying(false);
                     }}
-                    className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
+                    className="w-full md:w-auto bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
                   >
                     {tvSeasons
                       .filter((s) => s.season_number > 0)
@@ -372,35 +372,37 @@ export default function Detail({ mediaType }: DetailPageProps) {
                 </div>
 
                 {/* Episode pill buttons — scrollable row */}
-                <div className="overflow-x-auto scrollbar-hide flex-1">
-                  <div
-                    className={
-                      showEpisodeGrid
-                        ? "grid grid-flow-col grid-rows-3 auto-cols-max gap-2 pb-1"
-                        : "flex gap-2 pb-1"
-                    }
-                  >
-                    {Array.from({
-                      length: currentEpisodeCount,
-                    }).map((_, idx) => {
-                      const ep = idx + 1;
-                      return (
-                        <button
-                          key={ep}
-                          onClick={() => {
-                            setEpisode(ep);
-                            setIsPlaying(false);
-                          }}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                            ep === episode
-                              ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
-                              : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
-                          }`}
-                        >
-                          Ep {ep}
-                        </button>
-                      );
-                    })}
+                <div className="relative w-full md:flex-1">
+                  <div className="episode-scroll-fade overflow-x-auto scrollbar-hide px-2 md:px-0">
+                    <div
+                      className={
+                        showEpisodeGrid
+                          ? "grid grid-flow-col grid-rows-3 auto-cols-max gap-2 pb-1"
+                          : "flex gap-2 pb-1"
+                      }
+                    >
+                      {Array.from({
+                        length: currentEpisodeCount,
+                      }).map((_, idx) => {
+                        const ep = idx + 1;
+                        return (
+                          <button
+                            key={ep}
+                            onClick={() => {
+                              setEpisode(ep);
+                              setIsPlaying(false);
+                            }}
+                            className={`px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-[13px] md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                              ep === episode
+                                ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
+                                : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
+                            }`}
+                          >
+                            Ep {ep}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>

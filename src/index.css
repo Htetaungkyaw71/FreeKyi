@@ -90,9 +90,33 @@ body {
   scrollbar-width: none !important; /* Firefox */
 }
 
+.episode-scroll-fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12px,
+    #000 calc(100% - 24px),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12px,
+    #000 calc(100% - 24px),
+    transparent
+  );
+}
+
 @media (max-width: 767px) {
   .swiper-button-next,
   .swiper-button-prev {
     display: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .episode-scroll-fade {
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }

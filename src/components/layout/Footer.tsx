@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export function Footer() {
   return (
-    <footer className="bg-cinema-card border-t border-cinema-border mt-16">
+    <footer className="bg-cinema-card border-t border-cinema-border ">
       <div className="max-w-screen-2xl mx-auto px-4 md:px-8 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-2 md:col-span-1">

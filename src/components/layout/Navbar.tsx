@@ -10,6 +10,7 @@ export function Navbar() {
   const [mobileNavHidden, setMobileNavHidden] = useState(false);
   const [query, setQuery] = useState("");
   const lastScrollY = useRef(0);
+  const touchLastY = useRef<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const bookmarkCount = useAppSelector((s) => s.bookmarks.items.length);
@@ -17,9 +18,11 @@ export function Navbar() {
   const isDetailPage = /^\/(movie|tv)\/\d+/.test(location.pathname);
 
   useEffect(() => {
+    const isMobileScreen = () => window.matchMedia("(max-width: 767px)").matches;
+
     const onScroll = () => {
       const currentScrollY = window.scrollY;
-      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+      const isMobile = isMobileScreen();
       const scrollDelta = currentScrollY - lastScrollY.current;
 
       setScrolled(currentScrollY > 50);
@@ -40,12 +43,48 @@ export function Navbar() {
 
       lastScrollY.current = Math.max(0, currentScrollY);
     };
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (!isMobileScreen() || searchOpen) return;
+      touchLastY.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (!isMobileScreen() || searchOpen || touchLastY.current === null) return;
+
+      const currentY = event.touches[0]?.clientY;
+      if (currentY === undefined) return;
+
+      const fingerDelta = touchLastY.current - currentY;
+      if (window.scrollY < 24) {
+        setMobileNavHidden(false);
+      } else if (fingerDelta > 6) {
+        setMobileNavHidden(true);
+      } else if (fingerDelta < -6) {
+        setMobileNavHidden(false);
+      }
+
+      touchLastY.current = currentY;
+    };
+
+    const onTouchEnd = () => {
+      touchLastY.current = null;
+    };
+
     window.addEventListener("scroll", onScroll);
     window.addEventListener("resize", onScroll);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+    window.addEventListener("touchcancel", onTouchEnd);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
     };
   }, [searchOpen]);
 
@@ -223,7 +262,9 @@ export function Navbar() {
       </motion.nav>
 
       <nav
-        className="fixed left-0 right-0 z-[70] md:hidden border-t border-cinema-border bg-cinema-bg/95 backdrop-blur-xl shadow-2xl shadow-black/60 pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out"
+        className={`fixed left-0 right-0 z-[70] md:hidden border-t border-cinema-border bg-cinema-bg/95 backdrop-blur-xl shadow-2xl shadow-black/60 pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out ${
+          mobileNavHidden ? "pointer-events-none" : ""
+        }`}
         style={{
           bottom: "var(--visual-viewport-bottom, 0px)",
           transform: mobileNavHidden

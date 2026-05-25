@@ -309,22 +309,22 @@ export default function Browse({ mediaType }: BrowseProps) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen pt-20 pb-0"
+        className="min-h-screen pt-16 md:pt-20 pb-0"
       >
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-start justify-between gap-4 mb-6 md:mb-8">
             <div>
               <h1 className="font-display text-4xl md:text-5xl text-white">
                 {genreLabel ? genreLabel : title}
               </h1>
               <p className="text-cinema-muted text-sm font-body mt-1">
-                {totalPages * 20} {title} Available
+                {(totalPages * 20).toLocaleString()} {title} Available
               </p>
             </div>
             <button
               onClick={() => setShowFilterMobile(!showFilterMobile)}
-              className="md:hidden flex items-center gap-2 bg-cinema-card border border-cinema-border px-4 py-2 rounded-lg text-sm text-cinema-text"
+              className="mt-2 md:hidden flex items-center gap-2 bg-cinema-card border border-cinema-border px-3.5 py-2 rounded-lg text-sm text-cinema-text"
             >
               <SlidersHorizontal className="w-4 h-4" />
               Filters

@@ -200,7 +200,7 @@ export default function SearchPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen pt-20 pb-16"
+        className="min-h-screen pt-20 pb-6 md:pb-16"
       >
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
           {/* Search Bar */}
