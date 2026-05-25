@@ -768,7 +768,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
       </div>
 
       {/* ── METADATA ZONE ────────────────────────────────────────────────────── */}
-      <div className="max-w-screen-2xl mx-auto px-4 md:px-8 py-8">
+      <div className="max-w-screen-2xl mx-auto px-4 md:px-8 pt-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Poster */}
           {posterUrl && (
