@@ -8,6 +8,7 @@
 //   Bookmark,
 //   BookmarkCheck,
 //   ChevronDown,
+//   Play,
 // } from "lucide-react";
 // import { EmbedPlayer } from "../components/player/VideoPlayer";
 // import { CategoryRow } from "../components/ui/CategoryRow";
@@ -36,6 +37,21 @@
 //   mediaType: "movie" | "tv";
 // }
 
+// function getStoredProgress(id: number) {
+//   try {
+//     const raw = localStorage.getItem(`cinemaflow:lastWatched:${id}`);
+//     if (!raw) return { season: 1, episode: 1, subtitle: null };
+//     const p = JSON.parse(raw);
+//     return {
+//       season: Number(p?.season) || 1,
+//       episode: Number(p?.episode) || 1,
+//       subtitle: (p?.subtitle as string | null) ?? null,
+//     };
+//   } catch {
+//     return { season: 1, episode: 1, subtitle: null };
+//   }
+// }
+
 // export default function Detail({ mediaType }: DetailPageProps) {
 //   const { id } = useParams<{ id: string }>();
 //   const numId = Number(id);
@@ -46,18 +62,18 @@
 //     [],
 //   );
 //   const [loading, setLoading] = useState(true);
-//   const [season, setSeason] = useState(1);
-//   const [episode, setEpisode] = useState(1);
-//   const [subtitle, setSubtitle] = useState<string | null>(null);
+//   const [season, setSeason] = useState(() =>
+//     mediaType === "tv" ? getStoredProgress(numId).season : 1,
+//   );
+//   const [episode, setEpisode] = useState(() =>
+//     mediaType === "tv" ? getStoredProgress(numId).episode : 1,
+//   );
+//   const [isPlaying, setIsPlaying] = useState(false);
 
 //   const { isBookmarked, toggle } = useBookmark();
 //   const bookmarked = detail ? isBookmarked(numId, mediaType) : false;
-
 //   const STORAGE_KEY = `cinemaflow:lastWatched:${numId}`;
 
-//   // ── ALL hooks must be declared before any early returns ──────────────────
-
-//   // Fetch movie/TV details
 //   useEffect(() => {
 //     if (!numId) return;
 //     setLoading(true);
@@ -93,36 +109,23 @@
 //     fetchAll();
 //   }, [numId, mediaType]);
 
-//   // Restore last-watched episode from localStorage (TV only)
 //   useEffect(() => {
-//     if (!numId || mediaType !== "tv") return;
-//     try {
-//       const raw = localStorage.getItem(STORAGE_KEY);
-//       if (!raw) return;
-//       const parsed = JSON.parse(raw);
-//       if (parsed?.season) setSeason(Number(parsed.season));
-//       if (parsed?.episode) setEpisode(Number(parsed.episode));
-//       if (parsed?.subtitle) setSubtitle(parsed.subtitle);
-//     } catch {
-//       // ignore
-//     }
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//     setIsPlaying(false);
+//     if (mediaType !== "tv") return;
+//     const p = getStoredProgress(numId);
+//     setSeason(p.season);
+//     setEpisode(p.episode);
 //   }, [numId, mediaType]);
 
-//   // Persist current episode to localStorage (TV only)
 //   useEffect(() => {
 //     if (!numId || mediaType !== "tv") return;
 //     try {
-//       localStorage.setItem(
-//         STORAGE_KEY,
-//         JSON.stringify({ season, episode, subtitle }),
-//       );
+//       localStorage.setItem(STORAGE_KEY, JSON.stringify({ season, episode }));
 //     } catch {
 //       // ignore
 //     }
-//   }, [season, episode, subtitle, numId, mediaType, STORAGE_KEY]);
+//   }, [season, episode, numId, mediaType, STORAGE_KEY]);
 
-//   // ── Early returns AFTER all hooks ────────────────────────────────────────
 //   if (loading) return <DetailSkeleton />;
 //   if (!detail)
 //     return (
@@ -131,7 +134,6 @@
 //       </div>
 //     );
 
-//   // ── Derived values ────────────────────────────────────────────────────────
 //   const title =
 //     (detail as MovieDetail).title ?? (detail as TVDetail).name ?? "";
 //   const backdropUrl = detail.backdrop_path
@@ -164,31 +166,126 @@
 //       animate={{ opacity: 1 }}
 //       className="min-h-screen"
 //     >
-//       {/* Backdrop */}
-//       <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
-//         {backdropUrl ? (
-//           <img
-//             src={backdropUrl}
-//             alt=""
-//             className="w-full h-full object-cover object-top"
+//       {/*
+//        * ─── THEATER ZONE ────────────────────────────────────────────────────────
+//        * Full-width blurred backdrop behind the player so it feels immersive
+//        * without being a raw video slapped at the top.
+//        */}
+//       <div className="relative w-full bg-black">
+//         {/* Blurred backdrop ambiance — visible only on desktop where there's
+//             space on the sides of the 16:9 player */}
+//         {backdropUrl && (
+//           <div
+//             className="absolute inset-0 bg-cover bg-center opacity-20 blur-xl scale-105"
+//             style={{ backgroundImage: `url(${backdropUrl})` }}
+//             aria-hidden="true"
 //           />
-//         ) : (
-//           <div className="w-full h-full bg-cinema-hover" />
 //         )}
-//         <div className="absolute inset-0 bg-gradient-to-t from-cinema-bg via-cinema-bg/40 to-cinema-bg/20" />
-//         <div className="absolute inset-0 bg-gradient-to-r from-cinema-bg/80 to-transparent" />
+
+//         {/* ── The player itself ── */}
+//         <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pb-4">
+//           {isPlaying ? (
+//             <EmbedPlayer embedUrl={embedUrl} title={title} />
+//           ) : (
+//             /* Thumbnail / play-gate: same aspect ratio as the real player,
+//                lazy — only the iframe mounts after the user explicitly clicks */
+//             <div
+//               onClick={() => setIsPlaying(true)}
+//               className="relative w-full aspect-video rounded-xl bg-cinema-hover overflow-hidden group cursor-pointer shadow-2xl shadow-black/60"
+//             >
+//               {(backdropUrl || posterUrl) && (
+//                 <img
+//                   src={backdropUrl || posterUrl || ""}
+//                   alt={`Play ${title}`}
+//                   className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300"
+//                 />
+//               )}
+//               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+//                 <div className="w-16 h-16 md:w-20 md:h-20 bg-cinema-accent/90 rounded-full flex items-center justify-center pl-1.5 shadow-lg group-hover:scale-110 transition-transform duration-300">
+//                   <Play className="w-8 h-8 md:w-10 md:h-10 text-white fill-white" />
+//                 </div>
+//                 {mediaType === "tv" && (
+//                   <span className="text-white/80 text-sm font-body bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+//                     S{season} · E{episode}
+//                   </span>
+//                 )}
+//               </div>
+//             </div>
+//           )}
+//         </div>
 //       </div>
 
-//       {/* Main content */}
-//       <div className="max-w-screen-2xl mx-auto px-4 md:px-8 -mt-32 relative z-10">
+//       {/* TV episode selector — sits above the player so choosing an episode
+//             never requires scrolling down first */}
+// {mediaType === "tv" &&
+//   tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
+//     <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-3 flex items-center gap-3 flex-wrap">
+//       {/* Season dropdown */}
+//       <div className="relative">
+//         <select
+//           value={season}
+//           onChange={(e) => {
+//             setSeason(Number(e.target.value));
+//             setEpisode(1);
+//             setIsPlaying(false);
+//           }}
+//           className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
+//         >
+//           {tvSeasons
+//             .filter((s) => s.season_number > 0)
+//             .map((s) => (
+//               <option key={s.id} value={s.season_number}>
+//                 Season {s.season_number}
+//               </option>
+//             ))}
+//         </select>
+//         <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
+//       </div>
+
+//       {/* Episode pill buttons — scrollable row */}
+//       <div className="overflow-x-auto scrollbar-hide flex-1">
+//         <div className="flex gap-2 pb-1">
+//           {Array.from({
+//             length:
+//               tvSeasons.find((s) => s.season_number === season)
+//                 ?.episode_count ?? 1,
+//           }).map((_, idx) => {
+//             const ep = idx + 1;
+//             return (
+//               <button
+//                 key={ep}
+//                 onClick={() => {
+//                   setEpisode(ep);
+//                   setIsPlaying(false);
+//                 }}
+//                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+//                   ep === episode
+//                     ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
+//                     : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
+//                 }`}
+//               >
+//                 Ep {ep}
+//               </button>
+//             );
+//           })}
+//         </div>
+//       </div>
+//     </div>
+//   )}
+
+//       {/*
+//        * ─── METADATA ZONE ───────────────────────────────────────────────────────
+//        * Everything below the player: poster + info on desktop, stacked on mobile.
+//        */}
+//       <div className="max-w-screen-2xl mx-auto px-4 md:px-8 py-8">
 //         <div className="flex flex-col md:flex-row gap-8">
-//           {/* Poster */}
+//           {/* Poster — decorative on desktop, hidden on small mobile to save space */}
 //           {posterUrl && (
 //             <motion.div
-//               initial={{ opacity: 0, x: -30 }}
-//               animate={{ opacity: 1, x: 0 }}
-//               transition={{ delay: 0.2 }}
-//               className="flex-shrink-0 w-36 md:w-52 lg:w-64 rounded-xl overflow-hidden shadow-2xl shadow-black/60 self-start"
+//               initial={{ opacity: 0, y: 16 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ delay: 0.15 }}
+//               className="hidden sm:block flex-shrink-0 w-36 md:w-44 lg:w-52 rounded-xl overflow-hidden shadow-2xl shadow-black/50 self-start"
 //             >
 //               <img src={posterUrl} alt={title} className="w-full" />
 //             </motion.div>
@@ -198,10 +295,10 @@
 //           <motion.div
 //             initial={{ opacity: 0, y: 20 }}
 //             animate={{ opacity: 1, y: 0 }}
-//             transition={{ delay: 0.3 }}
+//             transition={{ delay: 0.2 }}
 //             className="flex-1"
 //           >
-//             {/* Genres */}
+//             {/* Genre chips */}
 //             <div className="flex flex-wrap gap-2 mb-3">
 //               {detail.genres?.map((g) => (
 //                 <Link
@@ -215,7 +312,7 @@
 //             </div>
 
 //             {/* Title */}
-//             <h1 className="font-display text-4xl md:text-6xl text-white hero-text-shadow mb-2">
+//             <h1 className="font-display text-3xl md:text-5xl text-white hero-text-shadow mb-2">
 //               {title}
 //             </h1>
 //             {detail.tagline && (
@@ -224,7 +321,7 @@
 //               </p>
 //             )}
 
-//             {/* Meta */}
+//             {/* Meta row */}
 //             <div className="flex flex-wrap items-center gap-4 mb-5 text-sm font-body">
 //               <div className="flex items-center gap-1.5">
 //                 <Star className="w-4 h-4 text-cinema-gold fill-cinema-gold" />
@@ -299,70 +396,6 @@
 //           </motion.div>
 //         </div>
 
-//         {/* Player Section */}
-//         <motion.div
-//           initial={{ opacity: 0, height: 0 }}
-//           animate={{ opacity: 1, height: "auto" }}
-//           className="mt-10"
-//         >
-//           <h2 className="font-display text-2xl text-white mb-4">Now Playing</h2>
-
-//           {/* TV Episode Selector */}
-//           {mediaType === "tv" &&
-//             tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
-//               <div className="flex gap-3 mb-4 flex-wrap">
-//                 <div className="relative">
-//                   <select
-//                     value={season}
-//                     onChange={(e) => {
-//                       setSeason(Number(e.target.value));
-//                       setEpisode(1);
-//                     }}
-//                     className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
-//                   >
-//                     {tvSeasons
-//                       .filter((s) => s.season_number > 0)
-//                       .map((s) => (
-//                         <option key={s.id} value={s.season_number}>
-//                           Season {s.season_number}
-//                         </option>
-//                       ))}
-//                   </select>
-//                   <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
-//                 </div>
-
-//                 <div className="flex gap-3 items-center">
-//                   <div className="overflow-x-auto scrollbar-hide max-w-[95vw]">
-//                     <div className="flex gap-2">
-//                       {Array.from({
-//                         length:
-//                           tvSeasons.find((s) => s.season_number === season)
-//                             ?.episode_count ?? 1,
-//                       }).map((_, idx) => {
-//                         const ep = idx + 1;
-//                         return (
-//                           <button
-//                             key={ep}
-//                             onClick={() => setEpisode(ep)}
-//                             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-//                               ep === episode
-//                                 ? "bg-cinema-accent text-white"
-//                                 : "bg-cinema-card text-cinema-text border border-cinema-border"
-//                             }`}
-//                           >
-//                             Ep {ep}
-//                           </button>
-//                         );
-//                       })}
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             )}
-
-//           <EmbedPlayer embedUrl={embedUrl} title={title} />
-//         </motion.div>
-
 //         {/* Cast */}
 //         {cast.length > 0 && (
 //           <div className="mt-12">
@@ -421,6 +454,7 @@ import {
   Bookmark,
   BookmarkCheck,
   ChevronDown,
+  Play,
 } from "lucide-react";
 import { EmbedPlayer } from "../components/player/VideoPlayer";
 import { CategoryRow } from "../components/ui/CategoryRow";
@@ -449,19 +483,17 @@ interface DetailPageProps {
   mediaType: "movie" | "tv";
 }
 
-// Read saved progress synchronously so initial state is correct immediately
 function getStoredProgress(id: number) {
   try {
     const raw = localStorage.getItem(`cinemaflow:lastWatched:${id}`);
-    if (!raw) return { season: 1, episode: 1, subtitle: null };
+    if (!raw) return { season: 1, episode: 1 };
     const p = JSON.parse(raw);
     return {
       season: Number(p?.season) || 1,
       episode: Number(p?.episode) || 1,
-      subtitle: (p?.subtitle as string | null) ?? null,
     };
   } catch {
-    return { season: 1, episode: 1, subtitle: null };
+    return { season: 1, episode: 1 };
   }
 }
 
@@ -469,7 +501,6 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const { id } = useParams<{ id: string }>();
   const numId = Number(id);
 
-  // Initialise season/episode directly from localStorage — no race condition
   const [detail, setDetail] = useState<MovieDetail | TVDetail | null>(null);
   const [cast, setCast] = useState<CastMember[]>([]);
   const [recommendations, setRecommendations] = useState<(Movie | TVSeries)[]>(
@@ -482,12 +513,12 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const [episode, setEpisode] = useState(() =>
     mediaType === "tv" ? getStoredProgress(numId).episode : 1,
   );
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const { isBookmarked, toggle } = useBookmark();
   const bookmarked = detail ? isBookmarked(numId, mediaType) : false;
   const STORAGE_KEY = `cinemaflow:lastWatched:${numId}`;
 
-  // Fetch details
   useEffect(() => {
     if (!numId) return;
     setLoading(true);
@@ -523,15 +554,14 @@ export default function Detail({ mediaType }: DetailPageProps) {
     fetchAll();
   }, [numId, mediaType]);
 
-  // When the id changes (navigating between shows), reload stored progress
   useEffect(() => {
+    setIsPlaying(false);
     if (mediaType !== "tv") return;
     const p = getStoredProgress(numId);
     setSeason(p.season);
     setEpisode(p.episode);
   }, [numId, mediaType]);
 
-  // Persist progress whenever season/episode/subtitle changes
   useEffect(() => {
     if (!numId || mediaType !== "tv") return;
     try {
@@ -541,8 +571,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
     }
   }, [season, episode, numId, mediaType, STORAGE_KEY]);
 
-  // Early returns — AFTER all hooks
-  if (loading) return <DetailSkeleton />;
+  if (loading) return <DetailSkeleton mediaType={mediaType} />;
   if (!detail)
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -550,7 +579,6 @@ export default function Detail({ mediaType }: DetailPageProps) {
       </div>
     );
 
-  // Derived values
   const title =
     (detail as MovieDetail).title ?? (detail as TVDetail).name ?? "";
   const backdropUrl = detail.backdrop_path
@@ -569,6 +597,8 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const episodes = (detail as TVDetail).number_of_episodes;
   const tvSeasons = (detail as TVDetail).seasons ?? [];
   const embedUrl = getEmbedUrl(numId, mediaType, season, episode);
+  const currentSeasonData = tvSeasons.find((s) => s.season_number === season);
+  const episodeCount = currentSeasonData?.episode_count ?? 1;
 
   const formatRuntime = (mins: number) => {
     if (!mins) return null;
@@ -583,31 +613,170 @@ export default function Detail({ mediaType }: DetailPageProps) {
       animate={{ opacity: 1 }}
       className="min-h-screen"
     >
-      {/* Backdrop */}
-      <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
-        {backdropUrl ? (
-          <img
-            src={backdropUrl}
-            alt=""
-            className="w-full h-full object-cover object-top"
+      {/* ── THEATER ZONE ─────────────────────────────────────────────────────── */}
+      <div className="relative w-full bg-black">
+        {/* Blurred backdrop ambiance */}
+        {backdropUrl && (
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-20 blur-xl scale-105"
+            style={{ backgroundImage: `url(${backdropUrl})` }}
+            aria-hidden="true"
           />
-        ) : (
-          <div className="w-full h-full bg-cinema-hover" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-cinema-bg via-cinema-bg/40 to-cinema-bg/20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-cinema-bg/80 to-transparent" />
+
+        {/* Player */}
+        <div className="relative z-10 max-w-screen-2xl mx-auto  pb-4">
+          {isPlaying ? (
+            <EmbedPlayer embedUrl={embedUrl} title={title} />
+          ) : (
+            <div
+              onClick={() => setIsPlaying(true)}
+              className="relative w-full aspect-video  bg-cinema-hover overflow-hidden group cursor-pointer shadow-2xl shadow-black/60"
+            >
+              {(backdropUrl || posterUrl) && (
+                <img
+                  src={backdropUrl || posterUrl || ""}
+                  alt={`Play ${title}`}
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300"
+                />
+              )}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-cinema-accent/90 rounded-full flex items-center justify-center pl-1.5 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Play className="w-8 h-8 md:w-10 md:h-10 text-white fill-white" />
+                </div>
+                {mediaType === "tv" && (
+                  <span className="text-white/80 text-sm font-body bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                    S{season} · E{episode}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {mediaType === "tv" &&
+          tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
+            <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-8 flex items-center gap-3 flex-wrap">
+              {/* Season dropdown */}
+              <div className="relative">
+                <select
+                  value={season}
+                  onChange={(e) => {
+                    setSeason(Number(e.target.value));
+                    setEpisode(1);
+                    setIsPlaying(false);
+                  }}
+                  className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
+                >
+                  {tvSeasons
+                    .filter((s) => s.season_number > 0)
+                    .map((s) => (
+                      <option key={s.id} value={s.season_number}>
+                        Season {s.season_number}
+                      </option>
+                    ))}
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
+              </div>
+
+              {/* Episode pill buttons — scrollable row */}
+              <div className="overflow-x-auto scrollbar-hide flex-1">
+                <div className="flex gap-2 pb-1">
+                  {Array.from({
+                    length:
+                      tvSeasons.find((s) => s.season_number === season)
+                        ?.episode_count ?? 1,
+                  }).map((_, idx) => {
+                    const ep = idx + 1;
+                    return (
+                      <button
+                        key={ep}
+                        onClick={() => {
+                          setEpisode(ep);
+                          setIsPlaying(false);
+                        }}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                          ep === episode
+                            ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
+                            : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
+                        }`}
+                      >
+                        Ep {ep}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+        {/* <div className="flex gap-2 flex-wrap">
+          {mediaType === "tv" &&
+            tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
+              <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-3">
+                <div className="relative inline-block">
+                  <select
+                    value={season}
+                    onChange={(e) => {
+                      setSeason(Number(e.target.value));
+                      setEpisode(1);
+                      setIsPlaying(false);
+                    }}
+                    className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
+                  >
+                    {tvSeasons
+                      .filter((s) => s.season_number > 0)
+                      .map((s) => (
+                        <option key={s.id} value={s.season_number}>
+                          Season {s.season_number}
+                        </option>
+                      ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
+                </div>
+              </div>
+            )}
+
+          {mediaType === "tv" && episodeCount > 0 && (
+            <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pb-5">
+              <div className="overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 pb-1">
+                  {Array.from({ length: episodeCount }).map((_, idx) => {
+                    const ep = idx + 1;
+                    return (
+                      <button
+                        key={ep}
+                        onClick={() => {
+                          setEpisode(ep);
+                          setIsPlaying(false);
+                        }}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                          ep === episode
+                            ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
+                            : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
+                        }`}
+                      >
+                        Ep {ep}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+        </div> */}
       </div>
 
-      {/* Main content */}
-      <div className="max-w-screen-2xl mx-auto px-4 md:px-8 -mt-32 relative z-10">
+      {/* ── METADATA ZONE ────────────────────────────────────────────────────── */}
+      <div className="max-w-screen-2xl mx-auto px-4 md:px-8 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Poster */}
           {posterUrl && (
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex-shrink-0 w-36 md:w-52 lg:w-64 rounded-xl overflow-hidden shadow-2xl shadow-black/60 self-start"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="hidden sm:block flex-shrink-0 w-36 md:w-44 lg:w-52 rounded-xl overflow-hidden shadow-2xl shadow-black/50 self-start"
             >
               <img src={posterUrl} alt={title} className="w-full" />
             </motion.div>
@@ -617,10 +786,10 @@ export default function Detail({ mediaType }: DetailPageProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2 }}
             className="flex-1"
           >
-            {/* Genres */}
+            {/* Genre chips */}
             <div className="flex flex-wrap gap-2 mb-3">
               {detail.genres?.map((g) => (
                 <Link
@@ -634,7 +803,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
             </div>
 
             {/* Title */}
-            <h1 className="font-display text-4xl md:text-6xl text-white hero-text-shadow mb-2">
+            <h1 className="font-display text-3xl md:text-5xl text-white hero-text-shadow mb-2">
               {title}
             </h1>
             {detail.tagline && (
@@ -643,7 +812,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
               </p>
             )}
 
-            {/* Meta */}
+            {/* Meta row */}
             <div className="flex flex-wrap items-center gap-4 mb-5 text-sm font-body">
               <div className="flex items-center gap-1.5">
                 <Star className="w-4 h-4 text-cinema-gold fill-cinema-gold" />
@@ -717,72 +886,6 @@ export default function Detail({ mediaType }: DetailPageProps) {
             </div>
           </motion.div>
         </div>
-
-        {/* Player Section */}
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          className="mt-10"
-        >
-          <h2 className="font-display text-2xl text-white mb-4">Now Playing</h2>
-
-          {/* TV Episode Selector */}
-          {mediaType === "tv" &&
-            tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
-              <div className="flex flex-col gap-3 mb-4">
-                {/* Season selector + subtitle */}
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="relative">
-                    <select
-                      value={season}
-                      onChange={(e) => {
-                        setSeason(Number(e.target.value));
-                        setEpisode(1);
-                      }}
-                      className="bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
-                    >
-                      {tvSeasons
-                        .filter((s) => s.season_number > 0)
-                        .map((s) => (
-                          <option key={s.id} value={s.season_number}>
-                            Season {s.season_number}
-                          </option>
-                        ))}
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Episode buttons */}
-                <div className="overflow-x-auto scrollbar-hide">
-                  <div className="flex gap-2 pb-1">
-                    {Array.from({
-                      length:
-                        tvSeasons.find((s) => s.season_number === season)
-                          ?.episode_count ?? 1,
-                    }).map((_, idx) => {
-                      const ep = idx + 1;
-                      return (
-                        <button
-                          key={ep}
-                          onClick={() => setEpisode(ep)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                            ep === episode
-                              ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
-                              : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
-                          }`}
-                        >
-                          Ep {ep}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
-          <EmbedPlayer embedUrl={embedUrl} title={title} />
-        </motion.div>
 
         {/* Cast */}
         {cast.length > 0 && (

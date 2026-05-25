@@ -182,13 +182,3 @@
     border-right-color: var(--border);
   }
 }
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none !important;
-}
-
-/* Hide scrollbar for IE, Edge, and Firefox */
-.scrollbar-hide {
-  -ms-overflow-style: none !important; /* IE and Edge */
-  scrollbar-width: none !important; /* Firefox */
-}

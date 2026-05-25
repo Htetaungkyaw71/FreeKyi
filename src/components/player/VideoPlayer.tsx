@@ -6,7 +6,7 @@ interface EmbedPlayerProps {
 export function EmbedPlayer({ embedUrl, title }: EmbedPlayerProps) {
   return (
     <div
-      className="relative w-full aspect-video rounded-xl bg-black shadow-2xl shadow-black/50"
+      className="relative w-full aspect-video bg-black shadow-2xl shadow-black/50"
       style={{ isolation: "isolate" }}
     >
       <iframe
@@ -17,7 +17,7 @@ export function EmbedPlayer({ embedUrl, title }: EmbedPlayerProps) {
         {...({ allowfullscreen: "true" } as Record<string, string>)}
         allow="autoplay; encrypted-media; picture-in-picture; web-share"
         referrerPolicy="strict-origin-when-cross-origin"
-        className="absolute inset-0 w-full h-full rounded-xl"
+        className="absolute inset-0 w-full h-full"
         style={{ border: "none" }}
       />
     </div>
