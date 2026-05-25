@@ -18,6 +18,8 @@ export default defineConfig({
       ],
       manifest: false, // We use our own manifest.webmanifest in /public
       workbox: {
+        navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/],
+
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         navigateFallback: "/index.html",
         runtimeCaching: [
@@ -53,6 +55,7 @@ export default defineConfig({
           },
         ],
       },
+
       devOptions: { enabled: true },
     }),
   ],
