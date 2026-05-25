@@ -207,7 +207,7 @@ export default function Browse({ mediaType }: BrowseProps) {
     if (p === 1) newParams.delete("page");
     else newParams.set("page", String(p));
     setSearchParams(newParams);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   };
 
   const handleFilterChange = (f: Partial<FilterState>) => {
@@ -309,41 +309,41 @@ export default function Browse({ mediaType }: BrowseProps) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen pt-20 pb-16"
+        className="min-h-screen pt-20 pb-0"
       >
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="font-display text-4xl md:text-5xl text-white">
-              {genreLabel ? genreLabel : title}
-            </h1>
-            <p className="text-cinema-muted text-sm font-body mt-1">
-              {totalPages * 20} {title} Available
-            </p>
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="font-display text-4xl md:text-5xl text-white">
+                {genreLabel ? genreLabel : title}
+              </h1>
+              <p className="text-cinema-muted text-sm font-body mt-1">
+                {totalPages * 20} {title} Available
+              </p>
+            </div>
+            <button
+              onClick={() => setShowFilterMobile(!showFilterMobile)}
+              className="md:hidden flex items-center gap-2 bg-cinema-card border border-cinema-border px-4 py-2 rounded-lg text-sm text-cinema-text"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Filters
+            </button>
           </div>
-          <button
-            onClick={() => setShowFilterMobile(!showFilterMobile)}
-            className="md:hidden flex items-center gap-2 bg-cinema-card border border-cinema-border px-4 py-2 rounded-lg text-sm text-cinema-text"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            Filters
-          </button>
-        </div>
 
-        <div className="flex gap-6">
-          {/* Mobile Overlay */}
-          {showFilterMobile && (
-            <div
-              className="fixed inset-0 bg-black/80 z-[90] md:hidden"
-              onClick={() => setShowFilterMobile(false)}
-            />
-          )}
+          <div className="flex gap-6">
+            {/* Mobile Overlay */}
+            {showFilterMobile && (
+              <div
+                className="fixed inset-0 bg-black/80 z-[90] md:hidden"
+                onClick={() => setShowFilterMobile(false)}
+              />
+            )}
 
-          {/* Sidebar */}
+            {/* Sidebar */}
 
-          <aside
-            className={`
+            <aside
+              className={`
             fixed md:sticky md:top-24 md:self-start inset-x-0 z-[100]
             bg-cinema-bg md:bg-transparent
             transform transition-transform duration-300 ease-in-out
@@ -357,61 +357,61 @@ export default function Browse({ mediaType }: BrowseProps) {
             bottom-0 max-h-[85svh] md:bottom-auto md:max-h-[calc(100vh-8rem)]
             scrollbar-hide
           `}
-          >
-            {/* Mobile Header */}
-            <div className="flex justify-between items-center mb-6 md:hidden">
-              <h2 className="text-2xl font-display text-white">Filters</h2>
-              <button
-                onClick={() => setShowFilterMobile(false)}
-                className="p-1 text-cinema-muted hover:text-white transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="w-full">
-              <FilterBar
-                genres={genres}
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                onReset={handleReset}
-              />
-            </div>
-          </aside>
-
-          {/* Grid */}
-
-          <div className="flex-1 min-w-0">
-            {loading ? (
-              <GridSkeleton count={20} />
-            ) : items.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-cinema-muted">
-                <p className="text-xl font-display">No results found</p>
-                <p className="text-sm mt-2 font-body">
-                  Try adjusting your filters
-                </p>
+            >
+              {/* Mobile Header */}
+              <div className="flex justify-between items-center mb-6 md:hidden">
+                <h2 className="text-2xl font-display text-white">Filters</h2>
+                <button
+                  onClick={() => setShowFilterMobile(false)}
+                  className="p-1 text-cinema-muted hover:text-white transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
               </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-                  {items.map((item, idx) => (
-                    <MediaCard
-                      key={item.id}
-                      item={item}
-                      type={mediaType}
-                      index={idx}
-                    />
-                  ))}
-                </div>
-                <Pagination
-                  currentPage={page}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
+
+              <div className="w-full">
+                <FilterBar
+                  genres={genres}
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                  onReset={handleReset}
                 />
-              </>
-            )}
+              </div>
+            </aside>
+
+            {/* Grid */}
+
+            <div className="flex-1 min-w-0">
+              {loading ? (
+                <GridSkeleton count={20} />
+              ) : items.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-cinema-muted">
+                  <p className="text-xl font-display">No results found</p>
+                  <p className="text-sm mt-2 font-body">
+                    Try adjusting your filters
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+                    {items.map((item, idx) => (
+                      <MediaCard
+                        key={item.id}
+                        item={item}
+                        type={mediaType}
+                        index={idx}
+                      />
+                    ))}
+                  </div>
+                  <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </>
+              )}
+            </div>
           </div>
-        </div>
         </div>
       </motion.div>
     </>

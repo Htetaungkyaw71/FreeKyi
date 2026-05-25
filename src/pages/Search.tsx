@@ -203,131 +203,134 @@ export default function SearchPage() {
         className="min-h-screen pt-20 pb-16"
       >
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
-        {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-8">
-          {/* <h1 className="font-display text-4xl text-white text-center mb-6">
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto mb-8">
+            {/* <h1 className="font-display text-4xl text-white text-center mb-6">
             Search
           </h1> */}
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cinema-muted" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => dispatch(setQuery(e.target.value))}
-              placeholder="Search movies, TV shows, and more..."
-              className="w-full bg-cinema-card border border-cinema-border rounded-2xl pl-12 pr-4 py-4 text-cinema-text placeholder-cinema-muted text-lg focus:outline-none focus:border-cinema-accent transition-colors"
-              autoFocus
-            />
-            {query && (
-              <button
-                onClick={() => dispatch(setQuery(""))}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-cinema-muted hover:text-white"
-              >
-                <X />
-              </button>
-            )}
-          </div>
-
-          {/* Tabs */}
-          <div className="flex gap-2 mt-4 justify-center">
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => dispatch(setActiveTab(id))}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-body font-medium transition-all ${
-                  activeTab === id
-                    ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
-                    : "bg-cinema-card border border-cinema-border text-cinema-muted hover:text-white"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Results */}
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <GridSkeleton count={12} />
-            </motion.div>
-          ) : results.length > 0 ? (
-            <motion.div
-              key={debouncedQuery + activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-            >
-              <p className="text-cinema-muted text-sm mb-4 font-body">
-                {totalResults.toLocaleString()} results for{" "}
-                <span className="text-white">"{debouncedQuery}"</span>
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {results.map((item, idx) => {
-                  const type =
-                    (item as { media_type?: string }).media_type === "tv"
-                      ? "tv"
-                      : "movie";
-                  return (
-                    <MediaCard
-                      key={`${item.id}-${type}`}
-                      item={
-                        { ...item, media_type: type } as (Movie | TVSeries) & {
-                          media_type: "movie" | "tv";
-                        }
-                      }
-                      type={type}
-                      index={idx}
-                    />
-                  );
-                })}
-              </div>
-
-              {totalPages > 1 && (
-                <div className="mt-8">
-                  <Pagination
-                    currentPage={page}
-                    totalPages={totalPages}
-                    onPageChange={(p) => {
-                      setPage(p);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  />
-                </div>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cinema-muted" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => dispatch(setQuery(e.target.value))}
+                placeholder="Search movies, TV shows, and more..."
+                className="w-full bg-cinema-card border border-cinema-border rounded-2xl pl-12 pr-4 py-4 text-cinema-text placeholder-cinema-muted text-lg focus:outline-none focus:border-cinema-accent transition-colors"
+                autoFocus
+              />
+              {query && (
+                <button
+                  onClick={() => dispatch(setQuery(""))}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-cinema-muted hover:text-white"
+                >
+                  <X />
+                </button>
               )}
-            </motion.div>
-          ) : debouncedQuery ? (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20 text-cinema-muted"
-            >
-              <Search className="w-16 h-16 mb-4 opacity-20" />
-              <p className="text-xl font-display">No results found</p>
-              <p className="text-sm mt-2 font-body">Try different keywords</p>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="idle"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20 text-cinema-muted"
-            >
-              <Search className="w-16 h-16 mb-4 opacity-20" />
-              <p className="text-lg font-body">Start typing to search</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-2 mt-4 justify-center">
+              {tabs.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => dispatch(setActiveTab(id))}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-body font-medium transition-all ${
+                    activeTab === id
+                      ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
+                      : "bg-cinema-card border border-cinema-border text-cinema-muted hover:text-white"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Results */}
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <GridSkeleton count={12} />
+              </motion.div>
+            ) : results.length > 0 ? (
+              <motion.div
+                key={debouncedQuery + activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                <p className="text-cinema-muted text-sm mb-4 font-body">
+                  {totalResults.toLocaleString()} results for{" "}
+                  <span className="text-white">"{debouncedQuery}"</span>
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                  {results.map((item, idx) => {
+                    const type =
+                      (item as { media_type?: string }).media_type === "tv"
+                        ? "tv"
+                        : "movie";
+                    return (
+                      <MediaCard
+                        key={`${item.id}-${type}`}
+                        item={
+                          { ...item, media_type: type } as (
+                            | Movie
+                            | TVSeries
+                          ) & {
+                            media_type: "movie" | "tv";
+                          }
+                        }
+                        type={type}
+                        index={idx}
+                      />
+                    );
+                  })}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-8">
+                    <Pagination
+                      currentPage={page}
+                      totalPages={totalPages}
+                      onPageChange={(p) => {
+                        setPage(p);
+                        window.scrollTo({ top: 0, behavior: "auto" });
+                      }}
+                    />
+                  </div>
+                )}
+              </motion.div>
+            ) : debouncedQuery ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center py-20 text-cinema-muted"
+              >
+                <Search className="w-16 h-16 mb-4 opacity-20" />
+                <p className="text-xl font-display">No results found</p>
+                <p className="text-sm mt-2 font-body">Try different keywords</p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="idle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center py-20 text-cinema-muted"
+              >
+                <Search className="w-16 h-16 mb-4 opacity-20" />
+                <p className="text-lg font-body">Start typing to search</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
     </>
