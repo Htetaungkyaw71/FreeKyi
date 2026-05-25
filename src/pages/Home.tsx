@@ -14,6 +14,7 @@ import {
   getKoreanSeries,
 } from "../services/tmdb";
 import type { Movie, TVSeries } from "../types";
+import { useWatchlist } from "../hooks/useWatchlist";
 
 export default function Home() {
   const [trending, setTrending] = useState<Movie[]>([]);
@@ -26,6 +27,8 @@ export default function Home() {
   const [airingToday, setAiringToday] = useState<TVSeries[]>([]);
   const [korean, setKorean] = useState<TVSeries[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { watchlist } = useWatchlist();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -68,6 +71,15 @@ export default function Home() {
       <Hero movies={trending} loading={loading} />
 
       <div className="mt-8 space-y-10">
+        {watchlist.length > 0 && (
+          <CategoryRow
+            title="Continue Watching"
+            items={watchlist}
+            type="movie" // CategoryRow handles mixed types based on item.media_type automatically if passed correctly
+            viewAllLink="/watchlist"
+            loading={false}
+          />
+        )}
         <CategoryRow
           title="Now Playing"
           items={nowPlaying}

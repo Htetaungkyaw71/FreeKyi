@@ -11,6 +11,7 @@ const Browse = lazy(() => import("./pages/Browse"));
 const Detail = lazy(() => import("./pages/Detail"));
 const SearchPage = lazy(() => import("./pages/Search"));
 const Bookmarks = lazy(() => import("./pages/Bookmarks"));
+const Watchlist = lazy(() => import("./pages/Watchlist"));
 
 // Loading fallback for lazy routes
 const PageLoader = () => (
@@ -40,6 +41,7 @@ function AppRoutes() {
               <Route path="/tv/:id" element={<Detail mediaType="tv" />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
+              <Route path="/watchlist" element={<Watchlist />} />
             </Routes>
           </Suspense>
         </AnimatePresence>

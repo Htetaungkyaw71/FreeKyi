@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bookmark, Menu, X } from "lucide-react";
+import { Search, Bookmark, ListPlus, Menu, X } from "lucide-react";
 import { useAppSelector } from "../../hooks/useStore";
 
 export function Navbar() {
@@ -12,6 +12,7 @@ export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const bookmarkCount = useAppSelector((s) => s.bookmarks.items.length);
+  const watchlistCount = useAppSelector((s) => s.watchlist.items.length);
 
   useEffect(() => {
     const onScroll = () => {
@@ -102,12 +103,24 @@ export function Navbar() {
 
             <Link
               to="/bookmarks"
-              className="relative w-9 h-9 rounded-full flex items-center justify-center text-cinema-muted hover:text-white hover:bg-cinema-hover transition-all"
+              className="relative w-9 h-9 rounded-full hidden md:flex items-center justify-center text-cinema-muted hover:text-white hover:bg-cinema-hover transition-all"
             >
               <Bookmark className="w-5 h-5" />
               {bookmarkCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-cinema-accent text-white text-[9px] rounded-full flex items-center justify-center font-mono">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-cinema-accent text-black text-[9px] font-bold rounded-full flex items-center justify-center font-mono">
                   {bookmarkCount > 9 ? "9+" : bookmarkCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              to="/watchlist"
+              className="relative w-9 h-9 rounded-full hidden md:flex items-center justify-center text-cinema-muted hover:text-white hover:bg-cinema-hover transition-all"
+            >
+              <ListPlus className="w-5 h-5" />
+              {watchlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-cinema-accent text-black text-[9px] font-bold rounded-full flex items-center justify-center font-mono">
+                  {watchlistCount > 9 ? "9+" : watchlistCount}
                 </span>
               )}
             </Link>
@@ -179,12 +192,23 @@ export function Navbar() {
                 </Link>
               ))}
               <Link
+                to="/watchlist"
+                className="block font-body text-lg text-cinema-muted hover:text-white py-2 border-b border-cinema-border"
+              >
+                Watchlist
+                {watchlistCount > 0 && (
+                  <span className="ml-2 bg-cinema-accent text-black font-bold text-xs px-2 py-0.5 rounded-full">
+                    {watchlistCount}
+                  </span>
+                )}
+              </Link>
+              <Link
                 to="/bookmarks"
                 className="block font-body text-lg text-cinema-muted hover:text-white py-2"
               >
                 Bookmarks
                 {bookmarkCount > 0 && (
-                  <span className="ml-2 bg-cinema-accent text-white text-xs px-2 py-0.5 rounded-full">
+                  <span className="ml-2 bg-cinema-accent text-black font-bold text-xs px-2 py-0.5 rounded-full">
                     {bookmarkCount}
                   </span>
                 )}

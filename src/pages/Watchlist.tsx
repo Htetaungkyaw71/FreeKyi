@@ -1,27 +1,27 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bookmark } from "lucide-react";
+import { ListPlus } from "lucide-react";
 import { MediaCard } from "../components/cards/MediaCard";
 import { Pagination } from "../components/ui/Pagination";
 import { useAppSelector } from "../hooks/useStore";
 
-export default function Bookmarks() {
-  const bookmarks = useAppSelector((s) => s.bookmarks.items);
+export default function Watchlist() {
+  const watchlist = useAppSelector((s) => s.watchlist.items);
 
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
 
-  const totalPages = Math.ceil(bookmarks.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(watchlist.length / ITEMS_PER_PAGE);
 
   // If items get removed causing the total pages to shrink below the current page
   if (page > totalPages && totalPages > 0) {
     setPage(totalPages);
   }
 
-  const paginatedBookmarks = useMemo(() => {
+  const paginatedWatchlist = useMemo(() => {
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    return bookmarks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [bookmarks, page]);
+    return watchlist.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [watchlist, page]);
 
   const handlePageChange = (p: number) => {
     setPage(p);
@@ -37,25 +37,25 @@ export default function Bookmarks() {
       <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
         <div className="mb-8">
           <h1 className="font-display text-4xl md:text-5xl text-white">
-            My Bookmarks
+            My Watchlist
           </h1>
           <p className="text-cinema-muted text-sm font-body mt-1">
-            {bookmarks.length} saved{" "}
-            {bookmarks.length === 1 ? "title" : "titles"}
+            {watchlist.length} saved{" "}
+            {watchlist.length === 1 ? "title" : "titles"}
           </p>
         </div>
 
         <AnimatePresence>
-          {bookmarks.length === 0 ? (
+          {watchlist.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center py-32 text-cinema-muted"
             >
-              <Bookmark className="w-20 h-20 mb-4 opacity-20" />
-              <p className="text-xl font-display">No bookmarks yet</p>
+              <ListPlus className="w-20 h-20 mb-4 opacity-20" />
+              <p className="text-xl font-display">No watchlist items yet</p>
               <p className="text-sm mt-2 font-body">
-                Start adding movies and TV shows!
+                Start curating your watchlist!
               </p>
             </motion.div>
           ) : (
@@ -65,7 +65,7 @@ export default function Bookmarks() {
               className="flex flex-col"
             >
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-                {paginatedBookmarks.map((item, idx) => (
+                {paginatedWatchlist.map((item, idx) => (
                   <MediaCard
                     key={`${item.id}-${item.media_type}`}
                     item={item}

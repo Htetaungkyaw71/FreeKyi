@@ -34,9 +34,18 @@ const bookmarksSlice = createSlice({
       if (idx >= 0) {
         state.items.splice(idx, 1);
       } else {
-        state.items.push(action.payload);
+        if (state.items.length >= 300) {
+          alert("Bookmark limit reached. You can only store up to 300 items.");
+          return;
+        }
+        // Add new bookmark to the beginning of the list
+        state.items.unshift(action.payload);
       }
-      localStorage.setItem("freekyi_bookmarks", JSON.stringify(state.items));
+      try {
+        localStorage.setItem("freekyi_bookmarks", JSON.stringify(state.items));
+      } catch (e) {
+        console.error("Failed to save bookmarks to localStorage:", e);
+      }
     },
     removeBookmark: (
       state,
