@@ -597,8 +597,8 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const episodes = (detail as TVDetail).number_of_episodes;
   const tvSeasons = (detail as TVDetail).seasons ?? [];
   const embedUrl = getEmbedUrl(numId, mediaType, season, episode);
-  const currentSeasonData = tvSeasons.find((s) => s.season_number === season);
-  const episodeCount = currentSeasonData?.episode_count ?? 1;
+  // const currentSeasonData = tvSeasons.find((s) => s.season_number === season);
+  // const episodeCount = currentSeasonData?.episode_count ?? 1;
 
   const formatRuntime = (mins: number) => {
     if (!mins) return null;

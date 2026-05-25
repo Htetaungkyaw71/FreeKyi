@@ -67,8 +67,17 @@ interface DetailSkeletonProps {
   mediaType?: "movie" | "tv";
 }
 
-const Shimmer = ({ className }: { className: string }) => (
-  <div className={`animate-pulse bg-cinema-hover rounded ${className}`} />
+const Shimmer = ({
+  className,
+  style,
+}: {
+  className: string;
+  style?: React.CSSProperties;
+}) => (
+  <div
+    className={`animate-pulse bg-cinema-hover rounded ${className}`}
+    style={style}
+  />
 );
 
 export function DetailSkeleton({ mediaType = "tv" }: DetailSkeletonProps) {
@@ -81,7 +90,7 @@ export function DetailSkeleton({ mediaType = "tv" }: DetailSkeletonProps) {
         {/* 1a. Season dropdown ghost */}
 
         {/* 1b. 16:9 player ghost */}
-        <div className="max-w-screen-2xl mx-auto pb-4">
+        <div className="max-w-screen-2xl mx-auto  pb-4">
           <div className="w-full aspect-video rounded-xl bg-cinema-hover animate-pulse" />
         </div>
 
@@ -114,7 +123,11 @@ export function DetailSkeleton({ mediaType = "tv" }: DetailSkeletonProps) {
             {/* Genre chips */}
             <div className="flex flex-wrap gap-2">
               {[60, 72, 54, 80].map((w, i) => (
-                <Shimmer key={i} className={`h-6 rounded-full`} />
+                <Shimmer
+                  key={i}
+                  className={`h-6 rounded-full`}
+                  style={{ width: w }}
+                />
               ))}
             </div>
 
