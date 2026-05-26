@@ -340,26 +340,14 @@ export default function Browse({ mediaType }: BrowseProps) {
               />
             )}
 
-            {/* Sidebar */}
-
+            {/* Mobile filter drawer */}
             <aside
-              className={`
-            fixed md:sticky md:top-24 md:self-start inset-x-0 z-[100]
-            bg-cinema-bg md:bg-transparent
-            transform transition-transform duration-300 ease-in-out
-            ${showFilterMobile ? "translate-y-0" : "translate-y-[110%]"} 
-            md:translate-y-0
-            md:block w-full md:w-64 md:flex-shrink-0
-            rounded-t-2xl md:rounded-none
-            border-t border-cinema-border md:border-0
-            overflow-y-auto
-            p-6 md:p-0
-            bottom-0 max-h-[85svh] md:bottom-auto md:max-h-[calc(100vh-8rem)]
-            scrollbar-hide
-          `}
+              className={`fixed inset-x-0 bottom-0 z-[100] max-h-[85svh] w-full overflow-y-auto rounded-t-2xl border-t border-cinema-border bg-cinema-bg p-6 scrollbar-hide transform transition-transform duration-300 ease-in-out md:hidden ${
+                showFilterMobile ? "translate-y-0" : "translate-y-[110%]"
+              }`}
             >
               {/* Mobile Header */}
-              <div className="flex justify-between items-center mb-6 md:hidden">
+              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-display text-white">Filters</h2>
                 <button
                   onClick={() => setShowFilterMobile(false)}
@@ -369,14 +357,22 @@ export default function Browse({ mediaType }: BrowseProps) {
                 </button>
               </div>
 
-              <div className="w-full">
-                <FilterBar
-                  genres={genres}
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                  onReset={handleReset}
-                />
-              </div>
+              <FilterBar
+                genres={genres}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onReset={handleReset}
+              />
+            </aside>
+
+            {/* Desktop sticky sidebar */}
+            <aside className="hidden md:block md:w-64 md:flex-shrink-0 md:self-start md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto md:pr-1 md:scrollbar-hide">
+              <FilterBar
+                genres={genres}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onReset={handleReset}
+              />
             </aside>
 
             {/* Grid */}

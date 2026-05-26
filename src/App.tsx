@@ -34,7 +34,7 @@ function AppRoutes() {
     <>
       <Navbar />
       <main
-        className={`min-h-screen overflow-x-hidden ${
+        className={`min-h-screen overflow-x-clip ${
           isDetailPage
             ? "pb-[calc(5rem+env(safe-area-inset-bottom,0px))]"
             : "pb-20"
