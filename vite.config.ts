@@ -21,6 +21,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/],
 
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
+        globIgnores: ["**/desktop_screenshot.png", "**/mobile_screenshot.png"],
         navigateFallback: "/index.html",
         runtimeCaching: [
           // Cache TMDB images for 30 days

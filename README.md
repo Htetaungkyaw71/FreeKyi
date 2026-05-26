@@ -7,13 +7,10 @@ FreeKyi is a premium web application for browsing and streaming movies and TV se
 This repo already includes screenshots. The README now references the existing images in `public/`:
 
 - [Desktop screenshot](public/desktop_screenshot.png)
-- [Mobile screenshot](public/mobile_screenshot.png)
 
 Embedded previews:
 
 ![Desktop view](public/desktop_screenshot.png)
-
-![Mobile view](public/mobile_screenshot.png)
 
 ## ✨ Features
 
