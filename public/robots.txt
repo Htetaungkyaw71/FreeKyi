@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://freekyi.vercel.app/sitemap.xml
+Sitemap: https://freekyi.com/sitemap.xml

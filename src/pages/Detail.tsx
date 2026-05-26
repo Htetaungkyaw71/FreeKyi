@@ -278,7 +278,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
           name: title,
           description: detail.overview || seoDescription,
           image: seoImage || undefined,
-          url: `https://freekyi.vercel.app${canonicalPath}`,
+          url: `https://freekyi.com${canonicalPath}`,
           datePublished: releaseDate || undefined,
           genre: detail.genres.map((g) => g.name),
           aggregateRating:

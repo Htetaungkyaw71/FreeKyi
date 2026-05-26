@@ -10,7 +10,7 @@ const sitemapPath = resolve(rootDir, "public/sitemap.xml");
 const siteUrl = (
   process.env.VITE_SITE_URL ||
   process.env.SITE_URL ||
-  "https://freekyi.vercel.app"
+  "https://freekyi.com"
 ).replace(/\/$/, "");
 
 const collectionSeoPages = [
