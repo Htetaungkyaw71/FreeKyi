@@ -29,7 +29,7 @@ export function HeroSkeleton() {
       <div className="skeleton absolute inset-0" />
       <div className="absolute bottom-16 left-8 md:left-16 space-y-4">
         <div className="skeleton h-10 w-72 rounded" />
-        <div className="skeleton h-4 w-96 rounded" />
+        <div className="skeleton h-4 w-80 rounded" />
         <div className="skeleton h-4 w-80 rounded" />
         <div className="flex gap-3 mt-4">
           <div className="skeleton h-12 w-32 rounded-full" />

@@ -33,7 +33,9 @@ function AppRoutes() {
   return (
     <>
       <Navbar />
-      <main className={`min-h-screen md:pb-0 ${isDetailPage ? "pb-10" : "pb-20"}`}>
+      <main
+        className={`min-h-screen md:pb-0 overflow-x-hidden ${isDetailPage ? "pb-10" : "pb-20"}`}
+      >
         <AnimatePresence mode="wait">
           <Suspense fallback={<PageLoader />}>
             <Routes location={location} key={location.pathname}>

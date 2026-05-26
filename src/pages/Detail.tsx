@@ -34,6 +34,7 @@ import type {
   TVSeries,
 } from "../types";
 import { SEO } from "../components/seo/SEO";
+import { parseMediaId, slugifyTitle } from "../utils/mediaUrls";
 
 interface DetailPageProps {
   mediaType: "movie" | "tv";
@@ -77,7 +78,7 @@ function getStoredProgress(id: number) {
 
 export default function Detail({ mediaType }: DetailPageProps) {
   const { id } = useParams<{ id: string }>();
-  const numId = Number(id);
+  const numId = parseMediaId(id);
   const detailCacheKey = getDetailCacheKey(mediaType, numId);
   const initialDetailData = getFreshDetailCache(detailCacheKey);
 
@@ -245,6 +246,8 @@ export default function Detail({ mediaType }: DetailPageProps) {
     : `Watch ${title}${year ? ` (${year})` : ""} online on FreeKyi. Find details, cast, ratings, and recommendations.`;
   const seoImage = posterUrl || backdropUrl;
   const schemaType = mediaType === "movie" ? "Movie" : "TVSeries";
+  const titleSlug = slugifyTitle(title);
+  const canonicalPath = `/${mediaType}/${numId}${titleSlug ? `-${titleSlug}` : ""}`;
 
   const formatRuntime = (mins: number) => {
     if (!mins) return null;
@@ -258,7 +261,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
       <SEO
         title={seoTitle}
         description={seoDescription}
-        path={`/${mediaType}/${numId}`}
+        path={canonicalPath}
         image={seoImage}
         imageAlt={`${title} poster`}
         type={mediaType === "movie" ? "video.movie" : "video.tv_show"}
@@ -275,7 +278,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
           name: title,
           description: detail.overview || seoDescription,
           image: seoImage || undefined,
-          url: `https://freekyi.vercel.app/${mediaType}/${numId}`,
+          url: `https://freekyi.vercel.app${canonicalPath}`,
           datePublished: releaseDate || undefined,
           genre: detail.genres.map((g) => g.name),
           aggregateRating:

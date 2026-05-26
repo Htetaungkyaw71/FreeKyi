@@ -6,6 +6,7 @@ import { BACKDROP_LG, POSTER_MD } from "../../services/tmdb";
 import { useBookmark } from "../../hooks/useBookmark";
 import { HeroSkeleton } from "../skeletons";
 import type { Movie } from "../../types";
+import { getMediaPath } from "../../utils/mediaUrls";
 
 interface HeroProps {
   movies: Movie[];
@@ -29,6 +30,7 @@ export function Hero({ movies, loading }: HeroProps) {
 
   const current = movies[currentIdx];
   if (!current) return null;
+  const currentPath = getMediaPath("movie", current);
 
   const backdropUrl = current.backdrop_path
     ? `${BACKDROP_LG}${current.backdrop_path}`
@@ -128,7 +130,7 @@ export function Hero({ movies, loading }: HeroProps) {
                 {/* Buttons */}
                 <div className="flex flex-wrap items-center gap-3">
                   <Link
-                    to={`/movie/${current.id}`}
+                    to={currentPath}
                     className="flex items-center gap-2 bg-cinema-accent hover:bg-red-700 text-white font-body font-semibold px-6 py-3 rounded-full transition-all duration-200 hover:scale-105 shadow-lg shadow-cinema-accent/30"
                   >
                     <Play className="w-4 h-4 fill-white" />
@@ -136,7 +138,7 @@ export function Hero({ movies, loading }: HeroProps) {
                   </Link>
 
                   <Link
-                    to={`/movie/${current.id}`}
+                    to={currentPath}
                     className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-body font-semibold px-6 py-3 rounded-full transition-all duration-200 border border-white/20"
                   >
                     <Info className="w-4 h-4" />

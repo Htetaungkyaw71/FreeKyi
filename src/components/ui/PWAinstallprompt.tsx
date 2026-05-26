@@ -11,7 +11,9 @@ function isStandaloneApp() {
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
     ("standalone" in window.navigator &&
-      Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone))
+      Boolean(
+        (window.navigator as Navigator & { standalone?: boolean }).standalone,
+      ))
   );
 }
 
@@ -95,29 +97,29 @@ export function PWAInstallPrompt() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: "spring", damping: 20 }}
-        className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:w-80 z-50"
+        className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 mx-auto max-w-md md:inset-x-auto md:right-6 md:w-80 md:max-w-none"
       >
-        <div className="bg-cinema-card border border-cinema-border rounded-2xl p-4 shadow-2xl shadow-black/50 backdrop-blur-sm">
+        <div className="bg-cinema-card border border-cinema-border rounded-2xl p-3 shadow-2xl shadow-black/50 backdrop-blur-sm min-[420px]:p-4">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-cinema-accent rounded-xl flex items-center justify-center flex-shrink-0">
               <Smartphone className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-body font-semibold text-sm">
+              <p className="text-white font-body font-semibold text-[15px] leading-tight">
                 {updateReady ? "Update FreeKyi App" : "Install FreeKyi App"}
               </p>
-              <p className="text-cinema-muted text-xs mt-0.5 font-body leading-relaxed">
+              <p className="text-cinema-muted text-xs mt-1 font-body leading-relaxed">
                 {updateReady
                   ? "A new version is ready. Refresh to get the latest app."
                   : isIOS && !canInstall
                     ? "Tap Share, then Add to Home Screen to install on iPhone."
                     : "Add to your home screen for faster access and app-like viewing."}
               </p>
-              <div className="flex gap-2 mt-3">
+              <div className="grid grid-cols-1 gap-2 mt-3 min-[420px]:grid-cols-[1fr_auto]">
                 {updateReady ? (
                   <button
                     onClick={handleRefresh}
-                    className="flex items-center gap-1.5 bg-cinema-accent hover:bg-red-700 text-white text-xs font-body font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                    className="flex min-h-11 w-full items-center justify-center gap-1.5 bg-cinema-accent hover:bg-red-700 text-white text-xs font-body font-semibold px-3 py-2 rounded-lg transition-colors"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     Update
@@ -125,20 +127,20 @@ export function PWAInstallPrompt() {
                 ) : canInstall ? (
                   <button
                     onClick={handleInstall}
-                    className="flex items-center gap-1.5 bg-cinema-accent hover:bg-red-700 text-white text-xs font-body font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                    className="flex min-h-11 w-full items-center justify-center gap-1.5 bg-cinema-accent hover:bg-red-700 text-white text-xs font-body font-semibold px-3 py-2 rounded-lg transition-colors"
                   >
                     <Download className="w-3.5 h-3.5" />
                     Install
                   </button>
                 ) : (
-                  <div className="flex items-center gap-1.5 text-white text-xs font-body font-semibold px-3 py-1.5 rounded-lg bg-cinema-hover border border-cinema-border">
+                  <div className="flex min-h-11 w-full items-center justify-center gap-1.5 text-white text-xs font-body font-semibold px-3 py-2 rounded-lg bg-cinema-hover border border-cinema-border text-center">
                     <Share className="w-3.5 h-3.5" />
                     Add to Home Screen
                   </div>
                 )}
                 <button
                   onClick={handleDismiss}
-                  className="text-cinema-muted hover:text-white text-xs font-body px-3 py-1.5 rounded-lg transition-colors"
+                  className="min-h-10 text-cinema-muted hover:text-white text-xs font-body px-3 py-2 rounded-lg transition-colors"
                 >
                   Not now
                 </button>
@@ -146,7 +148,8 @@ export function PWAInstallPrompt() {
             </div>
             <button
               onClick={handleDismiss}
-              className="text-cinema-muted hover:text-white transition-colors flex-shrink-0"
+              className="text-cinema-muted hover:text-white transition-colors flex-shrink-0 -m-1 p-1"
+              aria-label="Dismiss install prompt"
             >
               <X className="w-4 h-4" />
             </button>

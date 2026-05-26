@@ -134,6 +134,7 @@ import { POSTER_MD } from "../../services/tmdb";
 import { useBookmark } from "../../hooks/useBookmark";
 import { useWatchlist } from "../../hooks/useWatchlist";
 import type { Movie, TVSeries } from "../../types";
+import { getMediaPath } from "../../utils/mediaUrls";
 
 interface MediaCardProps {
   item: (Movie | TVSeries) & { media_type?: "movie" | "tv" };
@@ -181,7 +182,7 @@ export function MediaCard({ item, type = "movie", index = 0 }: MediaCardProps) {
       transition={{ delay: index * 0.05, duration: 0.3 }}
       className="group relative"
     >
-      <Link to={`/${mediaType}/${item.id}`} className="block">
+      <Link to={getMediaPath(mediaType, item)} className="block">
         <div className="relative rounded-lg overflow-hidden bg-cinema-card aspect-[2/3]">
           {posterUrl ? (
             <img
