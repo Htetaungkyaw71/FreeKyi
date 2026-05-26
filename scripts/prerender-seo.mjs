@@ -1,0 +1,260 @@
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const rootDir = resolve(__dirname, "..");
+const distDir = resolve(rootDir, "dist");
+const indexPath = resolve(distDir, "index.html");
+const sitemapPath = resolve(rootDir, "public/sitemap.xml");
+const siteUrl = (
+  process.env.VITE_SITE_URL ||
+  process.env.SITE_URL ||
+  "https://freekyi.vercel.app"
+).replace(/\/$/, "");
+
+function parseEnvFile(contents) {
+  return Object.fromEntries(
+    contents
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith("#") && line.includes("="))
+      .map((line) => {
+        const [key, ...valueParts] = line.split("=");
+        const value = valueParts
+          .join("=")
+          .trim()
+          .replace(/^['"]|['"]$/g, "");
+        return [key.trim(), value];
+      }),
+  );
+}
+
+async function loadEnv() {
+  try {
+    const env = parseEnvFile(await readFile(resolve(rootDir, ".env"), "utf8"));
+    for (const [key, value] of Object.entries(env)) {
+      process.env[key] ??= value;
+    }
+  } catch {
+    // Vercel provides environment variables directly.
+  }
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function stripHtml(value) {
+  return String(value ?? "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+}
+
+function truncate(value, maxLength) {
+  const clean = stripHtml(value);
+  if (clean.length <= maxLength) return clean;
+  return `${clean.slice(0, maxLength - 1).trim()}…`;
+}
+
+function parseSitemapUrls(xml) {
+  return Array.from(xml.matchAll(/<loc>(.*?)<\/loc>/g), (match) =>
+    match[1].replace(/&amp;/g, "&"),
+  );
+}
+
+function parseDetailUrl(url) {
+  try {
+    const { pathname } = new URL(url);
+    const match = pathname.match(/^\/(movie|tv)\/(\d+)/);
+    if (!match) return null;
+    return {
+      mediaType: match[1],
+      id: Number(match[2]),
+      pathname,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function getTitle(detail, mediaType) {
+  return mediaType === "movie"
+    ? detail.title || detail.original_title || ""
+    : detail.name || detail.original_name || "";
+}
+
+function getDate(detail, mediaType) {
+  return mediaType === "movie" ? detail.release_date : detail.first_air_date;
+}
+
+function getImage(detail) {
+  const path = detail.poster_path || detail.backdrop_path;
+  return path ? `https://image.tmdb.org/t/p/w780${path}` : `${siteUrl}/web-app-manifest-512x512.png`;
+}
+
+function buildDescription(detail, mediaType, title) {
+  const date = getDate(detail, mediaType);
+  const year = date ? new Date(date).getFullYear() : null;
+  const overview = truncate(detail.overview, 160);
+  const label = mediaType === "movie" ? "movie" : "TV series";
+
+  if (overview) {
+    return truncate(
+      `Watch ${title}${year ? ` (${year})` : ""} online on FreeKyi. ${overview}`,
+      220,
+    );
+  }
+
+  return `Watch ${title}${year ? ` (${year})` : ""} online on FreeKyi. Find ${label} details, ratings, cast, and recommendations.`;
+}
+
+function buildJsonLd(detail, mediaType, title, description, canonicalUrl, image) {
+  return {
+    "@context": "https://schema.org",
+    "@type": mediaType === "movie" ? "Movie" : "TVSeries",
+    name: title,
+    description,
+    image,
+    url: canonicalUrl,
+    datePublished: getDate(detail, mediaType) || undefined,
+    genre: Array.isArray(detail.genres)
+      ? detail.genres.map((genre) => genre.name).filter(Boolean)
+      : undefined,
+    aggregateRating:
+      detail.vote_count > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: Number(detail.vote_average || 0).toFixed(1),
+            bestRating: "10",
+            ratingCount: detail.vote_count,
+          }
+        : undefined,
+  };
+}
+
+function seoHead({ canonicalUrl, description, image, jsonLd, mediaType, title }) {
+  const pageTitle =
+    mediaType === "movie"
+      ? `Watch ${title} Online Free | FreeKyi`
+      : `Watch ${title} TV Series Online Free | FreeKyi`;
+  const ogType = mediaType === "movie" ? "video.movie" : "video.tv_show";
+
+  return `    <title>${escapeHtml(pageTitle)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+    <meta property="og:type" content="${ogType}" />
+    <meta property="og:site_name" content="FreeKyi" />
+    <meta property="og:title" content="${escapeHtml(pageTitle)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
+    <meta property="og:image" content="${escapeHtml(image)}" />
+    <meta property="og:image:alt" content="${escapeHtml(`${title} poster`)}" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(pageTitle)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${escapeHtml(image)}" />
+    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`;
+}
+
+function injectSeo(baseHtml, seoMarkup) {
+  return baseHtml
+    .replace(/    <title>.*?<\/title>\s*/s, seoMarkup)
+    .replace(/<html lang="en">/, '<html lang="en" data-prerendered-seo="true">');
+}
+
+function wait(ms) {
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
+}
+
+async function fetchDetail(baseUrl, apiKey, mediaType, id, attempts = 3) {
+  const endpoint = mediaType === "movie" ? `/movie/${id}` : `/tv/${id}`;
+  const url = new URL(`${baseUrl.replace(/\/$/, "")}${endpoint}`);
+  url.searchParams.set("api_key", apiKey);
+  url.searchParams.set("language", "en-US");
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+      return response.json();
+    } catch (error) {
+      if (attempt === attempts) throw error;
+      await wait(250 * attempt);
+    }
+  }
+
+  return null;
+}
+
+async function mapWithConcurrency(items, limit, mapper) {
+  const results = [];
+  let index = 0;
+
+  async function worker() {
+    while (index < items.length) {
+      const currentIndex = index;
+      index += 1;
+      results[currentIndex] = await mapper(items[currentIndex], currentIndex);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, () => worker()),
+  );
+  return results;
+}
+
+await loadEnv();
+
+const apiKey = process.env.VITE_MOVIE_APIKEY;
+const baseUrl = process.env.VITE_BASE_URL || "https://api.themoviedb.org/3";
+
+if (!apiKey) {
+  console.warn("Missing VITE_MOVIE_APIKEY; skipping detail SEO prerender.");
+  process.exit(0);
+}
+
+const [baseHtml, sitemapXml] = await Promise.all([
+  readFile(indexPath, "utf8"),
+  readFile(sitemapPath, "utf8"),
+]);
+
+const details = parseSitemapUrls(sitemapXml).map(parseDetailUrl).filter(Boolean);
+
+await mapWithConcurrency(details, 6, async ({ id, mediaType, pathname }) => {
+  try {
+    const detail = await fetchDetail(baseUrl, apiKey, mediaType, id);
+    const title = getTitle(detail, mediaType);
+    if (!title) return;
+
+    const canonicalUrl = `${siteUrl}${pathname}`;
+    const description = buildDescription(detail, mediaType, title);
+    const image = getImage(detail);
+    const jsonLd = buildJsonLd(
+      detail,
+      mediaType,
+      title,
+      description,
+      canonicalUrl,
+      image,
+    );
+    const html = injectSeo(
+      baseHtml,
+      seoHead({ canonicalUrl, description, image, jsonLd, mediaType, title }),
+    );
+    const outputDir = resolve(distDir, pathname.slice(1));
+
+    await mkdir(outputDir, { recursive: true });
+    await writeFile(resolve(outputDir, "index.html"), html);
+  } catch (error) {
+    console.warn(`Skipping ${pathname}: ${error.message}`);
+  }
+});
+
+console.log(`Prerendered SEO HTML for ${details.length} detail URLs.`);
