@@ -69,6 +69,22 @@ function getDetailPath(mediaType, item) {
 }
 
 function createStaticUrls(today) {
+  const collectionUrls = [
+    "korean-drama",
+    "anime-series",
+    "horror-night",
+    "action-movies",
+    "romantic-movies",
+    "marvel-movies",
+    "comedy-movies",
+    "new-movies-2026",
+  ].map((slug) => ({
+    loc: `/collections/${slug}`,
+    lastmod: today,
+    changefreq: "weekly",
+    priority: "0.8",
+  }));
+
   return [
     { loc: "/", lastmod: today, changefreq: "daily", priority: "1.0" },
     { loc: "/movies", lastmod: today, changefreq: "daily", priority: "0.8" },
@@ -115,6 +131,7 @@ function createStaticUrls(today) {
       changefreq: "daily",
       priority: "0.7",
     },
+    ...collectionUrls,
   ];
 }
 

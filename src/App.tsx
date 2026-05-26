@@ -11,6 +11,7 @@ import { PWAInstallPrompt } from "./components/ui/PWAinstallprompt";
 const Home = lazy(() => import("./pages/Home"));
 const Browse = lazy(() => import("./pages/Browse"));
 const Detail = lazy(() => import("./pages/Detail"));
+const Collection = lazy(() => import("./pages/Collection"));
 const SearchPage = lazy(() => import("./pages/Search"));
 const Bookmarks = lazy(() => import("./pages/Bookmarks"));
 const Watchlist = lazy(() => import("./pages/Watchlist"));
@@ -48,6 +49,7 @@ function AppRoutes() {
               <Route path="/tv" element={<Browse mediaType="tv" />} />
               <Route path="/movie/:id" element={<Detail mediaType="movie" />} />
               <Route path="/tv/:id" element={<Detail mediaType="tv" />} />
+              <Route path="/collections/:slug" element={<Collection />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/watchlist" element={<Watchlist />} />

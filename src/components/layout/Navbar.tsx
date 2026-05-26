@@ -506,7 +506,7 @@ export function Navbar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden border-t border-cinema-border/40 bg-cinema-bg/95 backdrop-blur-md"
+              className="overflow-hidden"
             >
               <form
                 onSubmit={handleSearch}

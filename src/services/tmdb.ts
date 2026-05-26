@@ -90,6 +90,7 @@ export const discoverMovies = (params: {
   "vote_average.gte"?: number;
   sort_by?: string;
   with_origin_country?: string;
+  with_companies?: string;
 }) => api.get<TMDBResponse<Movie>>("/discover/movie", { params });
 
 export const discoverTV = (params: {
@@ -99,6 +100,7 @@ export const discoverTV = (params: {
   "vote_average.gte"?: number;
   sort_by?: string;
   with_origin_country?: string;
+  with_original_language?: string;
 }) => api.get<TMDBResponse<TVSeries>>("/discover/tv", { params });
 
 // Search

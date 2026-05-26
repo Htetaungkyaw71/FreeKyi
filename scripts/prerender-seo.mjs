@@ -13,6 +13,65 @@ const siteUrl = (
   "https://freekyi.vercel.app"
 ).replace(/\/$/, "");
 
+const collectionSeoPages = [
+  {
+    slug: "korean-drama",
+    title: "Korean Drama",
+    description:
+      "Romance, revenge, mystery, and trending Korean series in one easy place.",
+    image: "https://image.tmdb.org/t/p/w780/2meX1nMdScFOoV4370rqHWKmXhY.jpg",
+  },
+  {
+    slug: "anime-series",
+    title: "Anime Series",
+    description:
+      "Popular anime shows, action adventures, fantasy worlds, and comfort rewatches.",
+    image: "https://image.tmdb.org/t/p/w780/A6tMQAo6t6eRFCPhsrShmxZLqFB.jpg",
+  },
+  {
+    slug: "horror-night",
+    title: "Horror Night",
+    description:
+      "Dark, tense, and supernatural movies for late-night horror watching.",
+    image: "https://image.tmdb.org/t/p/w780/6fKEw0I2FTD5FLOQ5q7L1tqf876.jpg",
+  },
+  {
+    slug: "action-movies",
+    title: "Action Movies",
+    description:
+      "Explosive fights, chases, heroes, revenge stories, and big-screen action.",
+    image: "https://image.tmdb.org/t/p/w780/4EAAwpylq313qrDqpCxulUrXBNF.jpg",
+  },
+  {
+    slug: "romantic-movies",
+    title: "Romantic Movies",
+    description:
+      "Feel-good romance, emotional drama, and date-night movie picks.",
+    image: "https://image.tmdb.org/t/p/w780/sra8XnL96OyLHENcglmZJg6HA8z.jpg",
+  },
+  {
+    slug: "marvel-movies",
+    title: "Marvel Movies",
+    description:
+      "Superhero battles, team-ups, origin stories, and Marvel universe favorites.",
+    image: "https://image.tmdb.org/t/p/w780/9BBTo63ANSmhC4e6r62OJFuK2GL.jpg",
+  },
+  {
+    slug: "comedy-movies",
+    title: "Comedy Movies",
+    description:
+      "Funny, feel-good, and easygoing movies for relaxed watching.",
+    image: "https://image.tmdb.org/t/p/w780/gkh6Nt8DtY1XT4gQsyFq9XAVJlJ.jpg",
+  },
+  {
+    slug: "new-movies-2026",
+    title: "New Movies 2026",
+    description:
+      "Recent and upcoming movies from 2026, sorted by what people are watching.",
+    image: "https://image.tmdb.org/t/p/w780/uIb9Tvae5haF0XcQBaPyufmxbb0.jpg",
+  },
+];
+
 function parseEnvFile(contents) {
   return Object.fromEntries(
     contents
@@ -162,6 +221,36 @@ function seoHead({ canonicalUrl, description, image, jsonLd, mediaType, title })
     <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`;
 }
 
+function collectionSeoHead({ canonicalUrl, description, image, title }) {
+  const pageTitle = `Watch ${title} Online | FreeKyi`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: pageTitle,
+    description,
+    image,
+    url: canonicalUrl,
+  };
+
+  return `    <title>${escapeHtml(pageTitle)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FreeKyi" />
+    <meta property="og:title" content="${escapeHtml(pageTitle)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
+    <meta property="og:image" content="${escapeHtml(image)}" />
+    <meta property="og:image:alt" content="${escapeHtml(`${title} collection`)}" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(pageTitle)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${escapeHtml(image)}" />
+    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`;
+}
+
 function injectSeo(baseHtml, seoMarkup) {
   return baseHtml
     .replace(/    <title>.*?<\/title>\s*/s, seoMarkup)
@@ -227,6 +316,22 @@ const [baseHtml, sitemapXml] = await Promise.all([
 
 const details = parseSitemapUrls(sitemapXml).map(parseDetailUrl).filter(Boolean);
 
+for (const collection of collectionSeoPages) {
+  const pathname = `/collections/${collection.slug}`;
+  const html = injectSeo(
+    baseHtml,
+    collectionSeoHead({
+      canonicalUrl: `${siteUrl}${pathname}`,
+      description: `${collection.description} Browse curated ${collection.title.toLowerCase()} on FreeKyi.`,
+      image: collection.image,
+      title: collection.title,
+    }),
+  );
+  const outputDir = resolve(distDir, pathname.slice(1));
+  await mkdir(outputDir, { recursive: true });
+  await writeFile(resolve(outputDir, "index.html"), html);
+}
+
 await mapWithConcurrency(details, 6, async ({ id, mediaType, pathname }) => {
   try {
     const detail = await fetchDetail(baseUrl, apiKey, mediaType, id);
@@ -257,4 +362,6 @@ await mapWithConcurrency(details, 6, async ({ id, mediaType, pathname }) => {
   }
 });
 
-console.log(`Prerendered SEO HTML for ${details.length} detail URLs.`);
+console.log(
+  `Prerendered SEO HTML for ${details.length} detail URLs and ${collectionSeoPages.length} collections.`,
+);

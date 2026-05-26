@@ -342,7 +342,7 @@ export default function Browse({ mediaType }: BrowseProps) {
 
             {/* Mobile filter drawer */}
             <aside
-              className={`fixed inset-x-0 bottom-0 z-[100] max-h-[85svh] w-full overflow-y-auto rounded-t-2xl border-t border-cinema-border bg-cinema-bg p-6 scrollbar-hide transform transition-transform duration-300 ease-in-out md:hidden ${
+              className={`fixed inset-x-0 bottom-0 z-[9999] max-h-[85svh] w-full overflow-y-auto rounded-t-2xl border-t border-cinema-border bg-cinema-bg p-6 scrollbar-hide transform transition-transform duration-300 ease-in-out md:hidden ${
                 showFilterMobile ? "translate-y-0" : "translate-y-[110%]"
               }`}
             >

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Hero } from "../components/ui/Hero";
 import { CategoryRow } from "../components/ui/CategoryRow";
+import { CollectionGrid } from "../components/ui/CollectionGrid";
 import {
   getTrendingMovies,
   getNowPlayingMovies,
@@ -17,6 +18,7 @@ import type { Movie, TVSeries } from "../types";
 import { useWatchlist } from "../hooks/useWatchlist";
 import { SEO } from "../components/seo/SEO";
 import { seoConfig } from "../components/seo/config";
+import { collections } from "../data/collections";
 
 interface HomePageData {
   trending: Movie[];
@@ -187,6 +189,7 @@ export default function Home() {
             viewAllLink="/movies?sort=upcoming"
             loading={loading}
           />
+          <CollectionGrid collections={collections} />
           <CategoryRow
             title="Trending TV Series"
             items={trendingTV}

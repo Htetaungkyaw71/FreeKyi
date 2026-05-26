@@ -45,20 +45,22 @@ export default function SearchPage() {
   const dispatch = useAppDispatch();
   const { query, activeTab } = useAppSelector((s) => s.search);
   const [searchParams, setSearchParams] = useSearchParams();
+  const urlQuery = searchParams.get("q") ?? "";
   const [results, setResults] = useState<(Movie | TVSeries)[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalResults, setTotalResults] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [urlReady, setUrlReady] = useState(false);
 
   const debouncedQuery = useDebounce(query, 400);
   const searchCacheKey = getSearchCacheKey(debouncedQuery, activeTab, page);
 
-  // Sync from URL
+  // Sync from URL only when the URL query changes.
   useEffect(() => {
-    const q = searchParams.get("q");
-    if (q && q !== query) dispatch(setQuery(q));
-  }, [dispatch, query, searchParams]);
+    dispatch(setQuery(urlQuery));
+    setUrlReady(true);
+  }, [dispatch, urlQuery]);
 
   // Reset page on new search or tab
   useEffect(() => {
@@ -66,7 +68,17 @@ export default function SearchPage() {
   }, [debouncedQuery, activeTab]);
 
   useEffect(() => {
-    if (!debouncedQuery.trim()) {
+    if (!urlReady) return;
+
+    const trimmedLiveQuery = query.trim();
+    const trimmedDebouncedQuery = debouncedQuery.trim();
+
+    if (trimmedLiveQuery !== trimmedDebouncedQuery) return;
+
+    if (!trimmedDebouncedQuery) {
+      if (urlQuery) {
+        setSearchParams({}, { replace: true });
+      }
       setResults([]);
       setTotalResults(0);
       setTotalPages(1);
@@ -74,7 +86,9 @@ export default function SearchPage() {
     }
 
     // Update URL
-    setSearchParams({ q: debouncedQuery });
+    if (urlQuery !== trimmedDebouncedQuery) {
+      setSearchParams({ q: trimmedDebouncedQuery }, { replace: true });
+    }
 
     const cachedData = getFreshSearchCache(searchCacheKey);
     if (cachedData) {
@@ -97,11 +111,11 @@ export default function SearchPage() {
       try {
         let res;
         if (activeTab === "all") {
-          res = await searchMulti(debouncedQuery, page);
+          res = await searchMulti(trimmedDebouncedQuery, page);
         } else if (activeTab === "movie") {
-          res = await searchMovies(debouncedQuery, page);
+          res = await searchMovies(trimmedDebouncedQuery, page);
         } else {
-          res = await searchTV(debouncedQuery, page);
+          res = await searchTV(trimmedDebouncedQuery, page);
         }
 
         if (!isActive) return;
@@ -140,7 +154,32 @@ export default function SearchPage() {
     return () => {
       isActive = false;
     };
-  }, [debouncedQuery, activeTab, page, searchCacheKey, setSearchParams]);
+  }, [
+    debouncedQuery,
+    query,
+    activeTab,
+    page,
+    searchCacheKey,
+    urlQuery,
+    urlReady,
+    setSearchParams,
+  ]);
+
+  const handleQueryChange = (value: string) => {
+    dispatch(setQuery(value));
+    if (!value.trim() && urlQuery) {
+      setSearchParams({}, { replace: true });
+    }
+  };
+
+  const handleClearSearch = () => {
+    dispatch(setQuery(""));
+    setSearchParams({}, { replace: true });
+    setResults([]);
+    setTotalResults(0);
+    setTotalPages(1);
+    setPage(1);
+  };
 
   const tabs = [
     { id: "all", label: "All", icon: Layers },
@@ -213,15 +252,17 @@ export default function SearchPage() {
               <input
                 type="text"
                 value={query}
-                onChange={(e) => dispatch(setQuery(e.target.value))}
+                onChange={(e) => handleQueryChange(e.target.value)}
                 placeholder="Search movies, TV shows, and more..."
                 className="w-full bg-cinema-card border border-cinema-border rounded-2xl pl-12 pr-4 py-4 text-cinema-text placeholder-cinema-muted text-lg focus:outline-none focus:border-cinema-accent transition-colors"
                 autoFocus
               />
               {query && (
                 <button
-                  onClick={() => dispatch(setQuery(""))}
+                  type="button"
+                  onClick={handleClearSearch}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-cinema-muted hover:text-white"
+                  aria-label="Clear search"
                 >
                   <X />
                 </button>
