@@ -66,3 +66,18 @@ npm run build
 - This application does not host any media files on its own servers.
 - All metadata, posters, and backdrops are provided by [TMDB](https://www.themoviedb.org/).
 - Video playback relies on third-party public iframe endpoints that are not affiliated with this project. Use at your own discretion.
+
+## 📷 Screenshots
+
+Add two screenshots to showcase the app on desktop and mobile. Place your images in the `public/screenshots/` folder with these names:
+
+- `public/screenshots/desktop.png` — Desktop / large-screen view
+- `public/screenshots/mobile.png` — Mobile / bottom-nav view
+
+Then include them in the README using the following markdown (already configured below):
+
+![Desktop view](public/screenshots/desktop.png)
+
+![Mobile view](public/screenshots/mobile.png)
+
+If you prefer different file names or a `src/assets/` location, update the paths above accordingly.
