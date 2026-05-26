@@ -18,7 +18,10 @@ export default defineConfig({
       ],
       manifest: false, // We use our own manifest.webmanifest in /public
       workbox: {
-        navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/],
+        navigateFallbackDenylist: [
+          /^\/sitemap\.xml(?:\?.*)?$/,
+          /^\/robots\.txt(?:\?.*)?$/,
+        ],
 
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
         globIgnores: ["**/desktop_screenshot.png", "**/mobile_screenshot.png"],
