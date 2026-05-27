@@ -15,6 +15,7 @@ import {
   Play,
   Send,
   Share2,
+  Clapperboard,
 } from "lucide-react";
 import { EmbedPlayer } from "../components/player/VideoPlayer";
 import { CategoryRow } from "../components/ui/CategoryRow";
@@ -111,6 +112,48 @@ async function copyToClipboard(value: string) {
   document.body.removeChild(textarea);
 }
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("")
+    .toUpperCase();
+}
+
+function CastAvatar({ member }: { member: CastMember }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const profileUrl =
+    member.profile_path && !imageFailed
+      ? `https://image.tmdb.org/t/p/w185${member.profile_path}`
+      : null;
+  const initials = getInitials(member.name) || "?";
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [member.profile_path]);
+
+  return (
+    <div className="mb-2 mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-gradient-to-br from-cinema-hover via-cinema-card to-black shadow-lg shadow-black/25">
+      {profileUrl ? (
+        <img
+          src={profileUrl}
+          alt={member.name}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <span className="text-lg font-body font-semibold tracking-wide text-cinema-muted">
+          {initials}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function Detail({ mediaType }: DetailPageProps) {
   const { id } = useParams<{ id: string }>();
   const numId = parseMediaId(id);
@@ -136,6 +179,8 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [heroImageFailed, setHeroImageFailed] = useState(false);
+  const [posterImageFailed, setPosterImageFailed] = useState(false);
   const shareMenuRef = useRef<HTMLDivElement | null>(null);
 
   const { isBookmarked, toggle } = useBookmark();
@@ -244,6 +289,11 @@ export default function Detail({ mediaType }: DetailPageProps) {
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [shareOpen]);
 
+  useEffect(() => {
+    setHeroImageFailed(false);
+    setPosterImageFailed(false);
+  }, [detail?.backdrop_path, detail?.poster_path]);
+
   if (loading)
     return (
       <>
@@ -278,6 +328,8 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const posterUrl = detail.poster_path
     ? `${POSTER_LG}${detail.poster_path}`
     : null;
+  const playerImageUrl = heroImageFailed ? null : backdropUrl || posterUrl;
+  const detailPosterUrl = posterImageFailed ? null : posterUrl;
   const releaseDate =
     (detail as MovieDetail).release_date ??
     (detail as TVDetail).first_air_date ??
@@ -443,14 +495,26 @@ export default function Detail({ mediaType }: DetailPageProps) {
                 }}
                 className="relative w-full aspect-video bg-cinema-hover overflow-hidden group cursor-pointer shadow-2xl shadow-black/60"
               >
-                {(backdropUrl || posterUrl) && (
+                {!playerImageUrl && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cinema-card via-[#15172a] to-black">
+                    <div className="flex flex-col items-center gap-2 px-6 text-center text-cinema-muted">
+                      <Clapperboard className="h-8 w-8 opacity-50" />
+                      <span className="line-clamp-1 max-w-xs text-xs font-body uppercase tracking-widest opacity-60">
+                        Preview unavailable
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {playerImageUrl && (
                   <img
-                    src={backdropUrl || posterUrl || ""}
-                    alt={`Play ${title}`}
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300"
+                    src={playerImageUrl}
+                    alt=""
+                    className="relative z-10 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300"
+                    decoding="async"
+                    onError={() => setHeroImageFailed(true)}
                   />
                 )}
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
                   <div className="w-16 h-16 md:w-20 md:h-20 bg-cinema-accent/90 rounded-full flex items-center justify-center pl-1.5 shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <Play className="w-8 h-8 md:w-10 md:h-10 text-white fill-white" />
                   </div>
@@ -536,9 +600,25 @@ export default function Detail({ mediaType }: DetailPageProps) {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="hidden sm:block flex-shrink-0 w-36 md:w-44 lg:w-52 rounded-xl overflow-hidden shadow-2xl shadow-black/50 self-start"
+                className="hidden sm:block flex-shrink-0 w-36 md:w-44 lg:w-52 rounded-xl overflow-hidden bg-cinema-card shadow-2xl shadow-black/50 self-start"
               >
-                <img src={posterUrl} alt={title} className="w-full" />
+                {detailPosterUrl ? (
+                  <img
+                    src={detailPosterUrl}
+                    alt={title}
+                    className="w-full"
+                    loading="lazy"
+                    decoding="async"
+                    onError={() => setPosterImageFailed(true)}
+                  />
+                ) : (
+                  <div className="flex aspect-[2/3] flex-col items-center justify-center gap-2 bg-gradient-to-br from-cinema-hover via-cinema-card to-black p-4 text-center text-cinema-muted">
+                    <Clapperboard className="h-8 w-8 opacity-60" />
+                    <p className="line-clamp-3 text-xs font-body font-medium text-cinema-text">
+                      {title}
+                    </p>
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -701,20 +781,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
                     key={member.id}
                     className="flex-shrink-0 w-24 text-center"
                   >
-                    <div className="w-24 h-24 rounded-full overflow-hidden bg-cinema-hover mb-2 mx-auto">
-                      {member.profile_path ? (
-                        <img
-                          src={`https://image.tmdb.org/t/p/w185${member.profile_path}`}
-                          alt={member.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-cinema-muted text-2xl">
-                          {member.name.charAt(0)}
-                        </div>
-                      )}
-                    </div>
+                    <CastAvatar member={member} />
                     <p className="text-cinema-text text-xs font-body font-medium leading-tight">
                       {member.name}
                     </p>

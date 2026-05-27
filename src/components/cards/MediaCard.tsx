@@ -130,7 +130,14 @@
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Star, Bookmark, BookmarkCheck, Play, X, ImageOff } from "lucide-react";
+import {
+  Star,
+  Bookmark,
+  BookmarkCheck,
+  Play,
+  X,
+  Clapperboard,
+} from "lucide-react";
 import { POSTER_MD } from "../../services/tmdb";
 import { useBookmark } from "../../hooks/useBookmark";
 import { useWatchlist } from "../../hooks/useWatchlist";
@@ -217,7 +224,7 @@ export function MediaCard({ item, type = "movie", index = 0 }: MediaCardProps) {
             <img
               ref={imageRef}
               src={posterUrl}
-              alt={title}
+              alt=""
               className="relative z-10 h-full w-full object-cover transition duration-500 group-hover:scale-110"
               loading="lazy"
               decoding="async"
@@ -229,13 +236,22 @@ export function MediaCard({ item, type = "movie", index = 0 }: MediaCardProps) {
               onError={() => setImageFailed(true)}
             />
           ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-cinema-hover via-cinema-card to-black px-4 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border border-cinema-border bg-black/30 text-cinema-muted">
-                <ImageOff className="h-5 w-5" />
+            <div className="relative flex h-full w-full flex-col justify-end overflow-hidden bg-gradient-to-br from-cinema-hover via-[#15172a] to-black p-3">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,35,60,0.22),transparent_34%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.1),transparent_30%)]" />
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 to-transparent" />
+              <div className="relative mb-auto mt-8 flex justify-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/25 text-cinema-muted shadow-lg shadow-black/20 backdrop-blur-sm">
+                  <Clapperboard className="h-5 w-5" />
+                </div>
               </div>
-              <p className="line-clamp-3 text-xs font-body font-medium leading-relaxed text-cinema-text">
-                {title || "Poster unavailable"}
-              </p>
+              <div className="relative">
+                <p className="line-clamp-3 text-xs font-body font-semibold leading-relaxed text-cinema-text">
+                  {title || "Poster unavailable"}
+                </p>
+                <p className="mt-1 text-[10px] font-body uppercase tracking-widest text-cinema-muted">
+                  Poster unavailable
+                </p>
+              </div>
             </div>
           )}
 
