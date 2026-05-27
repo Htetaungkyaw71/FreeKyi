@@ -163,12 +163,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/movie/1242332-normal</loc>
-    <lastmod>2026-05-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://freekyi.com/movie/1390300-over-your-dead-body</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
@@ -181,19 +175,25 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://freekyi.com/movie/1242332-normal</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://freekyi.com/movie/936075-michael</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/movie/1084244-toy-story-5</loc>
+    <loc>https://freekyi.com/movie/1242265-fuze</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/movie/1242265-fuze</loc>
+    <loc>https://freekyi.com/movie/1084244-toy-story-5</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -211,13 +211,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/movie/1368314-passenger</loc>
+    <loc>https://freekyi.com/movie/1102883-mother-mary</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/movie/1102883-mother-mary</loc>
+    <loc>https://freekyi.com/movie/1368314-passenger</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -1789,7 +1789,31 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://freekyi.com/tv/303143-my-royal-nemesis</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freekyi.com/tv/86031-dr-stone</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freekyi.com/tv/2190-south-park</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://freekyi.com/tv/295509-the-legend-of-kitchen-soldier</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freekyi.com/tv/71915-good-omens</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -1820,12 +1844,6 @@
   </url>
   <url>
     <loc>https://freekyi.com/tv/196950-witch-hat-atelier</loc>
-    <lastmod>2026-05-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://freekyi.com/tv/71915-good-omens</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -1867,7 +1885,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/tv/2190-south-park</loc>
+    <loc>https://freekyi.com/tv/287641-dazzling</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freekyi.com/tv/30983-detective-conan</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -1879,19 +1903,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/tv/111110-one-piece</loc>
-    <lastmod>2026-05-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://freekyi.com/tv/124101-hacks</loc>
-    <lastmod>2026-05-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://freekyi.com/tv/235930-devil-may-cry</loc>
+    <loc>https://freekyi.com/tv/251608-bad-thoughts</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -2359,13 +2371,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/tv/126398-wonderland</loc>
+    <loc>https://freekyi.com/tv/206559-binnelanders</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/tv/206559-binnelanders</loc>
+    <loc>https://freekyi.com/tv/72517-classroom-of-the-elite</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -2395,12 +2407,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/tv/4384-frontline</loc>
-    <lastmod>2026-05-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://freekyi.com/tv/13945-gute-zeiten-schlechte-zeiten</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
@@ -2413,13 +2419,19 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://freekyi.com/tv/309328-underground</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://freekyi.com/tv/1489-jimmy-kimmel-live</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/tv/2912-jeopardy</loc>
+    <loc>https://freekyi.com/tv/203003-the-truth</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -2431,13 +2443,19 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freekyi.com/tv/31991-wwe-nxt</loc>
+    <loc>https://freekyi.com/tv/2912-jeopardy</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freekyi.com/tv/11890-goede-tijden-slechte-tijden</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freekyi.com/tv/70311-full-time-magister</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -2846,12 +2864,6 @@
   </url>
   <url>
     <loc>https://freekyi.com/tv/112888-true-beauty</loc>
-    <lastmod>2026-05-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://freekyi.com/tv/303143-my-royal-nemesis</loc>
     <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

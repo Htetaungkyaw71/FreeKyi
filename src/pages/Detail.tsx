@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -8,7 +8,13 @@ import {
   Bookmark,
   BookmarkCheck,
   ChevronDown,
+  Check,
+  Copy,
+  ExternalLink,
+  MessageCircle,
   Play,
+  Send,
+  Share2,
 } from "lucide-react";
 import { EmbedPlayer } from "../components/player/VideoPlayer";
 import { CategoryRow } from "../components/ui/CategoryRow";
@@ -76,6 +82,35 @@ function getStoredProgress(id: number) {
   }
 }
 
+function shouldUseNativeShare() {
+  if (!navigator.share) return false;
+
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  const isMobileUserAgent = /android|iphone|ipad|ipod/.test(userAgent);
+  const isTouchDevice = navigator.maxTouchPoints > 1;
+  const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  const isSmallScreen = window.matchMedia("(max-width: 767px)").matches;
+
+  return isMobileUserAgent || isTouchDevice || isCoarsePointer || isSmallScreen;
+}
+
+async function copyToClipboard(value: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}
+
 export default function Detail({ mediaType }: DetailPageProps) {
   const { id } = useParams<{ id: string }>();
   const numId = parseMediaId(id);
@@ -99,6 +134,9 @@ export default function Detail({ mediaType }: DetailPageProps) {
     mediaType === "tv" ? getStoredProgress(numId).episode : 1,
   );
   const [isPlaying, setIsPlaying] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shareMenuRef = useRef<HTMLDivElement | null>(null);
 
   const { isBookmarked, toggle } = useBookmark();
   const bookmarked = detail ? isBookmarked(numId, mediaType) : false;
@@ -190,6 +228,22 @@ export default function Detail({ mediaType }: DetailPageProps) {
     }
   }, [season, episode, numId, mediaType, STORAGE_KEY]);
 
+  useEffect(() => {
+    if (!shareOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        shareMenuRef.current &&
+        !shareMenuRef.current.contains(event.target as Node)
+      ) {
+        setShareOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [shareOpen]);
+
   if (loading)
     return (
       <>
@@ -248,12 +302,73 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const schemaType = mediaType === "movie" ? "Movie" : "TVSeries";
   const titleSlug = slugifyTitle(title);
   const canonicalPath = `/${mediaType}/${numId}${titleSlug ? `-${titleSlug}` : ""}`;
+  const shareUrl = `${window.location.origin}${canonicalPath}`;
+  const shareText = `Watch ${title} on FreeKyi`;
+  const encodedShareUrl = encodeURIComponent(shareUrl);
+  const encodedShareText = encodeURIComponent(shareText);
+  const shareLinks = [
+    {
+      label: "Facebook",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}`,
+      icon: ExternalLink,
+    },
+    {
+      label: "X",
+      href: `https://twitter.com/intent/tweet?url=${encodedShareUrl}&text=${encodedShareText}`,
+      icon: ExternalLink,
+    },
+    {
+      label: "Telegram",
+      href: `https://t.me/share/url?url=${encodedShareUrl}&text=${encodedShareText}`,
+      icon: Send,
+    },
+    {
+      label: "WhatsApp",
+      href: `https://wa.me/?text=${encodedShareText}%20${encodedShareUrl}`,
+      icon: MessageCircle,
+    },
+  ];
 
   const formatRuntime = (mins: number) => {
     if (!mins) return null;
     const h = Math.floor(mins / 60);
     const m = mins % 60;
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
+
+  const handleCopyShareLink = async () => {
+    try {
+      await copyToClipboard(shareUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleShare = async () => {
+    if (shouldUseNativeShare()) {
+      try {
+        const shareData = {
+          title,
+          text: shareText,
+          url: shareUrl,
+        };
+
+        if (navigator.canShare && !navigator.canShare(shareData)) {
+          setShareOpen((value) => !value);
+          return;
+        }
+
+        await navigator.share(shareData);
+        setShareOpen(false);
+        return;
+      } catch (error) {
+        if ((error as Error).name === "AbortError") return;
+      }
+    }
+
+    setShareOpen((value) => !value);
   };
 
   return (
@@ -528,6 +643,50 @@ export default function Detail({ mediaType }: DetailPageProps) {
                     </>
                   )}
                 </button>
+                <div className="relative" ref={shareMenuRef}>
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-2 bg-cinema-hover border border-cinema-border text-white font-body font-medium px-5 py-3 rounded-full transition-all duration-200 hover:border-cinema-accent"
+                    aria-expanded={shareOpen}
+                    aria-haspopup="menu"
+                  >
+                    <Share2 className="w-4 h-4" /> Share
+                  </button>
+
+                  {shareOpen && (
+                    <div
+                      className="absolute left-0 top-[calc(100%+0.5rem)] z-50 w-64 overflow-hidden rounded-xl border border-cinema-border bg-cinema-card shadow-2xl shadow-black/50 md:left-auto md:right-0"
+                      role="menu"
+                    >
+                      <button
+                        onClick={handleCopyShareLink}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-body text-cinema-text transition-colors hover:bg-cinema-hover"
+                        role="menuitem"
+                      >
+                        {copied ? (
+                          <Check className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Copy className="h-4 w-4 text-cinema-muted" />
+                        )}
+                        {copied ? "Copied" : "Copy link"}
+                      </button>
+                      <div className="h-px bg-cinema-border" />
+                      {shareLinks.map(({ label, href, icon: Icon }) => (
+                        <a
+                          key={label}
+                          href={href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-3 px-4 py-3 text-sm font-body text-cinema-text transition-colors hover:bg-cinema-hover"
+                          role="menuitem"
+                        >
+                          <Icon className="h-4 w-4 text-cinema-muted" />
+                          {label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>
