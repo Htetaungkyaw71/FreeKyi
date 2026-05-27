@@ -236,21 +236,10 @@ export function MediaCard({ item, type = "movie", index = 0 }: MediaCardProps) {
               onError={() => setImageFailed(true)}
             />
           ) : (
-            <div className="relative flex h-full w-full flex-col justify-end overflow-hidden bg-gradient-to-br from-cinema-hover via-[#15172a] to-black p-3">
+            <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-gradient-to-br from-cinema-hover via-[#15172a] to-black">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,35,60,0.22),transparent_34%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.1),transparent_30%)]" />
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 to-transparent" />
-              <div className="relative mb-auto mt-8 flex justify-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/25 text-cinema-muted shadow-lg shadow-black/20 backdrop-blur-sm">
-                  <Clapperboard className="h-5 w-5" />
-                </div>
-              </div>
-              <div className="relative">
-                <p className="line-clamp-3 text-xs font-body font-semibold leading-relaxed text-cinema-text">
-                  {title || "Poster unavailable"}
-                </p>
-                <p className="mt-1 text-[10px] font-body uppercase tracking-widest text-cinema-muted">
-                  Poster unavailable
-                </p>
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-black/25 text-cinema-muted shadow-lg shadow-black/20 backdrop-blur-sm">
+                <Clapperboard className="h-6 w-6" />
               </div>
             </div>
           )}
