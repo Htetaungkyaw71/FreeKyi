@@ -97,7 +97,7 @@ export function PWAInstallPrompt() {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: "spring", damping: 20 }}
-        className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-50 mx-auto max-w-md md:inset-x-auto md:right-6 md:w-80 md:max-w-none"
+        className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] z-[10000] mx-auto max-w-md md:inset-x-auto md:right-6 md:bottom-6 md:w-80 md:max-w-none"
       >
         <div className="bg-cinema-card border border-cinema-border rounded-2xl p-3 shadow-2xl shadow-black/50 backdrop-blur-sm min-[420px]:p-4">
           <div className="flex items-start gap-3">
