@@ -12,6 +12,11 @@ const siteUrl = (
   process.env.SITE_URL ||
   "https://freekyi.com"
 ).replace(/\/$/, "");
+const sameAsLinks = [
+  "https://t.me/+bKYkU_aTmgM4NmFl",
+  "https://www.facebook.com/share/1CpaDU1353/?mibextid=wwXIfr",
+];
+const contactEmail = "freekyimovie@gmail.com";
 
 const collectionSeoPages = [
   {
@@ -69,6 +74,140 @@ const collectionSeoPages = [
     description:
       "Recent and upcoming movies from 2026, sorted by what people are watching.",
     image: "https://image.tmdb.org/t/p/w780/uIb9Tvae5haF0XcQBaPyufmxbb0.jpg",
+  },
+];
+
+const watchFreeMoviesFaqs = [
+  {
+    question: "Where can I watch movies online?",
+    answer:
+      "FreeKyi is a movie and TV discovery site where viewers can browse films, series, new releases, trending titles, and curated collections in one place.",
+  },
+  {
+    question: "Can I find TV series and Korean drama on FreeKyi?",
+    answer:
+      "Yes. FreeKyi includes TV series, Korean drama, anime series, airing-today shows, and popular series collections for quick discovery.",
+  },
+  {
+    question: "Can I search by movie name or series name?",
+    answer:
+      "Yes. Use FreeKyi search to find movies and TV series by title, then open the detail page for rating, release year, cast, overview, recommendations, and watch options.",
+  },
+  {
+    question: "What kinds of movies are organized on FreeKyi?",
+    answer:
+      "FreeKyi organizes movies by trending titles, new releases, action, horror, animation, romance, comedy, Marvel, and other curated collections.",
+  },
+];
+
+const staticSeoPages = [
+  {
+    pathname: "/watch-free-movies-online",
+    title: "Where to Watch Movies Online Free | FreeKyi",
+    description:
+      "FreeKyi helps you discover movies and TV series online by title, genre, year, rating, collections, and trending categories.",
+    image: `${siteUrl}/web-app-manifest-512x512.png`,
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Where to Watch Movies and TV Series Online",
+        description:
+          "FreeKyi helps you discover movies and TV series online by title, genre, year, rating, collections, and trending categories.",
+        url: `${siteUrl}/watch-free-movies-online`,
+        isPartOf: {
+          "@type": "WebSite",
+          name: "FreeKyi",
+          url: siteUrl,
+        },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "FreeKyi",
+        url: siteUrl,
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${siteUrl}/search?q={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "FreeKyi",
+        url: siteUrl,
+        logo: `${siteUrl}/web-app-manifest-512x512.png`,
+        email: contactEmail,
+        sameAs: sameAsLinks,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: watchFreeMoviesFaqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
+  },
+  {
+    pathname: "/about",
+    title: "About FreeKyi | FreeKyi",
+    description:
+      "Learn about FreeKyi, a movie and TV series discovery site for browsing films, series, collections, ratings, cast, and recommendations.",
+    image: `${siteUrl}/web-app-manifest-512x512.png`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      name: "About FreeKyi",
+      description:
+        "FreeKyi is a movie and TV series discovery site for browsing films, series, collections, ratings, cast, and recommendations.",
+      url: `${siteUrl}/about`,
+      mainEntity: {
+        "@type": "Organization",
+        name: "FreeKyi",
+        url: siteUrl,
+        logo: `${siteUrl}/web-app-manifest-512x512.png`,
+        email: contactEmail,
+        sameAs: sameAsLinks,
+      },
+    },
+  },
+  {
+    pathname: "/contact",
+    title: "Contact FreeKyi | FreeKyi",
+    description:
+      "Contact FreeKyi through Telegram, Facebook, or email for support, feedback, broken links, image issues, and removal requests.",
+    image: `${siteUrl}/web-app-manifest-512x512.png`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      name: "Contact FreeKyi",
+      description:
+        "Contact FreeKyi through Telegram, Facebook, or email for support, feedback, broken links, image issues, and removal requests.",
+      url: `${siteUrl}/contact`,
+      mainEntity: {
+        "@type": "Organization",
+        name: "FreeKyi",
+        url: siteUrl,
+        logo: `${siteUrl}/web-app-manifest-512x512.png`,
+        email: contactEmail,
+        contactPoint: {
+          "@type": "ContactPoint",
+          email: contactEmail,
+          contactType: "customer support",
+        },
+        sameAs: sameAsLinks,
+      },
+    },
   },
 ];
 
@@ -251,6 +390,26 @@ function collectionSeoHead({ canonicalUrl, description, image, title }) {
     <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`;
 }
 
+function staticSeoHead({ canonicalUrl, description, image, jsonLd, title }) {
+  return `    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FreeKyi" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}" />
+    <meta property="og:image" content="${escapeHtml(image)}" />
+    <meta property="og:image:alt" content="FreeKyi" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${escapeHtml(image)}" />
+    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`;
+}
+
 function injectSeo(baseHtml, seoMarkup) {
   return baseHtml
     .replace(/    <title>.*?<\/title>\s*/s, seoMarkup)
@@ -332,6 +491,23 @@ for (const collection of collectionSeoPages) {
   await writeFile(resolve(outputDir, "index.html"), html);
 }
 
+for (const page of staticSeoPages) {
+  const canonicalUrl = `${siteUrl}${page.pathname}`;
+  const html = injectSeo(
+    baseHtml,
+    staticSeoHead({
+      canonicalUrl,
+      description: page.description,
+      image: page.image,
+      jsonLd: page.jsonLd,
+      title: page.title,
+    }),
+  );
+  const outputDir = resolve(distDir, page.pathname.slice(1));
+  await mkdir(outputDir, { recursive: true });
+  await writeFile(resolve(outputDir, "index.html"), html);
+}
+
 await mapWithConcurrency(details, 6, async ({ id, mediaType, pathname }) => {
   try {
     const detail = await fetchDetail(baseUrl, apiKey, mediaType, id);
@@ -363,5 +539,5 @@ await mapWithConcurrency(details, 6, async ({ id, mediaType, pathname }) => {
 });
 
 console.log(
-  `Prerendered SEO HTML for ${details.length} detail URLs and ${collectionSeoPages.length} collections.`,
+  `Prerendered SEO HTML for ${details.length} detail URLs, ${collectionSeoPages.length} collections, and ${staticSeoPages.length} static pages.`,
 );

@@ -87,6 +87,19 @@ function createStaticUrls(today) {
 
   return [
     { loc: "/", lastmod: today, changefreq: "daily", priority: "1.0" },
+    {
+      loc: "/watch-free-movies-online",
+      lastmod: today,
+      changefreq: "weekly",
+      priority: "0.9",
+    },
+    { loc: "/about", lastmod: today, changefreq: "monthly", priority: "0.5" },
+    {
+      loc: "/contact",
+      lastmod: today,
+      changefreq: "monthly",
+      priority: "0.5",
+    },
     { loc: "/movies", lastmod: today, changefreq: "daily", priority: "0.8" },
     {
       loc: "/movies?sort=now_playing",

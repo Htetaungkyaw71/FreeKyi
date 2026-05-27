@@ -15,6 +15,9 @@ const Collection = lazy(() => import("./pages/Collection"));
 const SearchPage = lazy(() => import("./pages/Search"));
 const Bookmarks = lazy(() => import("./pages/Bookmarks"));
 const Watchlist = lazy(() => import("./pages/Watchlist"));
+const WatchFreeMovies = lazy(() => import("./pages/WatchFreeMovies"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 // Loading fallback for lazy routes
 const PageLoader = () => (
@@ -50,6 +53,12 @@ function AppRoutes() {
               <Route path="/movie/:id" element={<Detail mediaType="movie" />} />
               <Route path="/tv/:id" element={<Detail mediaType="tv" />} />
               <Route path="/collections/:slug" element={<Collection />} />
+              <Route
+                path="/watch-free-movies-online"
+                element={<WatchFreeMovies />}
+              />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
               <Route path="/watchlist" element={<Watchlist />} />
