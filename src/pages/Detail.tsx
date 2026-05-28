@@ -750,12 +750,12 @@ export default function Detail({ mediaType }: DetailPageProps) {
             </div>
 
             {videoServers.length > 1 && (
-              <div className="px-4 py-4 md:px-8">
+              <div className="relative z-[120] px-4 py-4 md:px-8">
                 <p className="mb-3 text-xs font-body text-cinema-muted">
                   If this server does not work, please switch to another
                   server.
                 </p>
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide touch-pan-x">
                   {videoServers.map((server, index) => (
                     <button
                       key={server.id}
@@ -764,7 +764,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
                         setSelectedServerId(server.id);
                         setIsPlaying(false);
                       }}
-                      className={`flex-shrink-0 rounded-full border px-4 py-2 text-xs font-body font-semibold transition-colors ${
+                      className={`relative z-[121] min-h-10 flex-shrink-0 touch-manipulation rounded-full border px-4 py-2 text-xs font-body font-semibold transition-colors ${
                         server.id === selectedVideoServer?.id
                           ? "border-cinema-accent bg-cinema-accent text-white"
                           : "border-cinema-border bg-cinema-card text-cinema-muted hover:border-cinema-accent hover:text-white"

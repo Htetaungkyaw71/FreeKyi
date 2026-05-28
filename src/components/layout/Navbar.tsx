@@ -355,16 +355,11 @@ export function Navbar() {
         setSearchOpen(false);
       }
 
-      if (isDetailPage) {
-        setTopVisible(y > 80);
-        return;
-      }
-
       // Don't hide when near top
       if (y < 60) {
         accumulatedDelta.current = 0;
         setBottomVisible(true);
-        setTopVisible(true);
+        setTopVisible(!isDetailPage);
         return;
       }
 
