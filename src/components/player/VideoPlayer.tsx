@@ -1,12 +1,17 @@
 interface EmbedPlayerProps {
   embedUrl: string;
   title?: string;
+  className?: string;
 }
 
-export function EmbedPlayer({ embedUrl, title }: EmbedPlayerProps) {
+export function EmbedPlayer({
+  embedUrl,
+  title,
+  className = "",
+}: EmbedPlayerProps) {
   return (
     <div
-      className="relative w-full aspect-video bg-black shadow-2xl shadow-black/50"
+      className={`relative w-full aspect-video bg-black shadow-2xl shadow-black/50 ${className}`}
       style={{ isolation: "isolate" }}
     >
       <iframe

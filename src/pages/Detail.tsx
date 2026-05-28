@@ -672,55 +672,63 @@ export default function Detail({ mediaType }: DetailPageProps) {
 
           {/* Player */}
           <div className="top-0 z-[80] max-w-screen-2xl mx-auto bg-black pb-4 shadow-2xl shadow-black/70 md:relative md:top-auto md:z-10 md:shadow-none">
-            {isPlaying ? (
-              <EmbedPlayer embedUrl={embedUrl} title={title} />
-            ) : (
-              <div
-                onClick={() => {
-                  if (detail) {
-                    addW({
-                      ...detail,
-                      media_type: mediaType,
-                      genre_ids: detail.genres.map((g) => g.id),
-                    } as (Movie | TVSeries) & {
-                      media_type: "movie" | "tv";
-                    });
-                  }
-                  setIsPlaying(true);
-                }}
-                className="relative w-full aspect-video bg-cinema-hover overflow-hidden group cursor-pointer shadow-2xl shadow-black/60"
-              >
-                {!playerImageUrl && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cinema-card via-[#15172a] to-black">
-                    <div className="flex flex-col items-center gap-2 px-6 text-center text-cinema-muted">
-                      <Clapperboard className="h-8 w-8 opacity-50" />
-                      <span className="line-clamp-1 max-w-xs text-xs font-body uppercase tracking-widest opacity-60">
-                        Preview unavailable
-                      </span>
+            <div className="relative w-full aspect-video overflow-hidden bg-black shadow-2xl shadow-black/60">
+              <EmbedPlayer
+                embedUrl={embedUrl}
+                title={title}
+                className="shadow-none"
+              />
+
+              {!isPlaying && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (detail) {
+                      addW({
+                        ...detail,
+                        media_type: mediaType,
+                        genre_ids: detail.genres.map((g) => g.id),
+                      } as (Movie | TVSeries) & {
+                        media_type: "movie" | "tv";
+                      });
+                    }
+                    setIsPlaying(true);
+                  }}
+                  className="absolute inset-0 z-30 w-full cursor-pointer overflow-hidden bg-cinema-hover text-left group"
+                  aria-label={`Play ${title}`}
+                >
+                  {!playerImageUrl && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cinema-card via-[#15172a] to-black">
+                      <div className="flex flex-col items-center gap-2 px-6 text-center text-cinema-muted">
+                        <Clapperboard className="h-8 w-8 opacity-50" />
+                        <span className="line-clamp-1 max-w-xs text-xs font-body uppercase tracking-widest opacity-60">
+                          Preview unavailable
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {playerImageUrl && (
-                  <img
-                    src={playerImageUrl}
-                    alt=""
-                    className="relative z-10 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300"
-                    decoding="async"
-                    onError={() => setHeroImageFailed(true)}
-                  />
-                )}
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-cinema-accent/90 rounded-full flex items-center justify-center pl-1.5 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Play className="w-8 h-8 md:w-10 md:h-10 text-white fill-white" />
-                  </div>
-                  {mediaType === "tv" && (
-                    <span className="text-white/80 text-sm font-body bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
-                      S{season} · E{episode}
-                    </span>
                   )}
-                </div>
-              </div>
-            )}
+                  {playerImageUrl && (
+                    <img
+                      src={playerImageUrl}
+                      alt=""
+                      className="relative z-10 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-300"
+                      decoding="async"
+                      onError={() => setHeroImageFailed(true)}
+                    />
+                  )}
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3">
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-cinema-accent/90 rounded-full flex items-center justify-center pl-1.5 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <Play className="w-8 h-8 md:w-10 md:h-10 text-white fill-white" />
+                    </div>
+                    {mediaType === "tv" && (
+                      <span className="text-white/80 text-sm font-body bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                        S{season} · E{episode}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              )}
+            </div>
           </div>
 
           {mediaType === "tv" &&
