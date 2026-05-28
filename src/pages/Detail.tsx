@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -28,11 +28,11 @@ import {
   getMovieRecommendations,
   getTVRecommendations,
   getTVSeasonDetails,
-  getEmbedUrl,
   BACKDROP_LG,
   IMAGE_BASE,
   POSTER_LG,
 } from "../services/tmdb";
+import { getVideoServers } from "../services/videoServers";
 import { useBookmark } from "../hooks/useBookmark";
 import { useWatchlist } from "../hooks/useWatchlist";
 import type {
@@ -286,6 +286,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
     mediaType === "tv" ? getStoredProgress(numId).episode : 1,
   );
   const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedServerId, setSelectedServerId] = useState("server-1");
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [heroImageFailed, setHeroImageFailed] = useState(false);
@@ -447,6 +448,20 @@ export default function Detail({ mediaType }: DetailPageProps) {
     setPosterImageFailed(false);
   }, [detail?.backdrop_path, detail?.poster_path]);
 
+  const videoServers = useMemo(
+    () => getVideoServers({ id: numId, type: mediaType, season, episode }),
+    [numId, mediaType, season, episode],
+  );
+
+  useEffect(() => {
+    if (
+      videoServers.length > 0 &&
+      !videoServers.some((server) => server.id === selectedServerId)
+    ) {
+      setSelectedServerId(videoServers[0].id);
+    }
+  }, [selectedServerId, videoServers]);
+
   if (loading)
     return (
       <>
@@ -493,7 +508,10 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const episodes = (detail as TVDetail).number_of_episodes;
   const tvSeasons = (detail as TVDetail).seasons ?? [];
   const visibleTvSeasons = tvSeasons.filter((s) => s.season_number > 0);
-  const embedUrl = getEmbedUrl(numId, mediaType, season, episode);
+  const selectedVideoServer =
+    videoServers.find((server) => server.id === selectedServerId) ??
+    videoServers[0];
+  const embedUrl = selectedVideoServer?.embedUrl ?? "about:blank";
   const currentEpisodeCount =
     tvSeasons.find((s) => s.season_number === episodeListSeason)
       ?.episode_count ?? 1;
@@ -674,6 +692,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
           <div className="top-0 z-[80] max-w-screen-2xl mx-auto bg-black pb-4 shadow-2xl shadow-black/70 md:relative md:top-auto md:z-10 md:shadow-none">
             <div className="relative w-full aspect-video overflow-hidden bg-black shadow-2xl shadow-black/60">
               <EmbedPlayer
+                key={selectedVideoServer?.id ?? embedUrl}
                 embedUrl={embedUrl}
                 title={title}
                 className="shadow-none"
@@ -729,6 +748,34 @@ export default function Detail({ mediaType }: DetailPageProps) {
                 </button>
               )}
             </div>
+
+            {videoServers.length > 1 && (
+              <div className="px-4 py-4 md:px-8">
+                <p className="mb-3 text-xs font-body text-cinema-muted">
+                  If this server does not work, please switch to another
+                  server.
+                </p>
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                  {videoServers.map((server, index) => (
+                    <button
+                      key={server.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedServerId(server.id);
+                        setIsPlaying(false);
+                      }}
+                      className={`flex-shrink-0 rounded-full border px-4 py-2 text-xs font-body font-semibold transition-colors ${
+                        server.id === selectedVideoServer?.id
+                          ? "border-cinema-accent bg-cinema-accent text-white"
+                          : "border-cinema-border bg-cinema-card text-cinema-muted hover:border-cinema-accent hover:text-white"
+                      }`}
+                    >
+                      Server {index + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {mediaType === "tv" &&

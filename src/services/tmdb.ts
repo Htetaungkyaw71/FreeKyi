@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getVideoServers } from "./videoServers";
 import type {
   Movie,
   TVSeries,
@@ -140,14 +141,14 @@ export const getKoreanSeries = (page = 1) =>
     params: { page, with_origin_country: "KR", sort_by: "popularity.desc" },
   });
 
-// Vidsrc embed URL builder
 export const getEmbedUrl = (
   id: number,
   type: "movie" | "tv",
   season?: number,
   episode?: number,
 ) => {
-  if (type === "movie")
-    return `${import.meta.env.VITE_VIDEO_URL}/embed/movie?tmdb=${id}`;
-  return `${import.meta.env.VITE_VIDEO_URL}/embed/tv?tmdb=${id}&season=${season ?? 1}&episode=${episode ?? 1}`;
+  return (
+    getVideoServers({ id, type, season, episode })[0]?.embedUrl ??
+    "about:blank"
+  );
 };

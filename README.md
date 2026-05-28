@@ -53,10 +53,47 @@ npm install
 
 Create a \`.env\` file in the root of the project and add your TMDB API keys:
 \`\`\`env
-VITE*BASE_URL=https://api.themoviedb.org/3
+VITE_BASE_URL=https://api.themoviedb.org/3
 VITE_MOVIE_APIKEY=your_tmdb_v3_api_key_here
+VITE_VIDEO_SERVER_1_NAME=VidAPI
+VITE_VIDEO_SERVER_1_URL=https://vaplayer.ru
+VITE_VIDEO_NAME=Server 2
+VITE_VIDEO_URL=https://your-primary-authorized-embed-provider.example
+VITE_VIDEO_SERVER_3_NAME=VidFast
+VITE_VIDEO_SERVER_3_URL=https://www.vidfast.net
 \`\`\`
 *(You can get a free API key by signing up at [TMDB's Developer Portal](https://developer.themoviedb.org/docs)).\_
+
+Optional extra video servers can be configured with URL templates. The app
+can build standard path-style embed URLs from a single base URL:
+
+\`\`\`env
+VITE_VIDEO_SERVER_1_NAME=VidAPI
+VITE_VIDEO_SERVER_1_URL=https://vaplayer.ru
+\`\`\`
+
+That creates for embed providers:
+
+\`\`\`text
+Movie: /embed/movie/{id}
+TV:    /embed/tv/{id}/{season}/{episode}
+\`\`\`
+
+VidFast uses direct player paths instead:
+
+\`\`\`text
+Movie: /movie/{id}
+TV:    /tv/{id}/{season}/{episode}
+\`\`\`
+
+If a provider uses a different URL shape, use templates instead. Templates
+support `{id}` or `{tmdb}`, `{season}`, and `{episode}` placeholders:
+
+\`\`\`env
+VITE_VIDEO_SERVER_3_NAME=Custom Server
+VITE_VIDEO_SERVER_3_MOVIE_URL=https://your-authorized-provider.example/movie/{id}
+VITE_VIDEO_SERVER_3_TV_URL=https://your-authorized-provider.example/tv/{id}/{season}/{episode}
+\`\`\`
 
 ### 4. Run the Development Server
 

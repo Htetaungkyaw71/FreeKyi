@@ -355,6 +355,11 @@ export function Navbar() {
         setSearchOpen(false);
       }
 
+      if (isDetailPage) {
+        setTopVisible(y > 80);
+        return;
+      }
+
       // Don't hide when near top
       if (y < 60) {
         accumulatedDelta.current = 0;
@@ -375,7 +380,7 @@ export function Navbar() {
         setTopVisible(true);
       }
     });
-  }, [searchOpen]);
+  }, [isDetailPage, searchOpen]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -389,10 +394,10 @@ export function Navbar() {
   useEffect(() => {
     setSearchOpen(false);
     setBottomVisible(true);
-    setTopVisible(true);
+    setTopVisible(!isDetailPage || window.scrollY > 80);
     accumulatedDelta.current = 0;
     lastY.current = window.scrollY;
-  }, [location.pathname]);
+  }, [isDetailPage, location.pathname]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -422,8 +427,6 @@ export function Navbar() {
       {/* ── Top nav ───────────────────────────────────────────────────── */}
       <nav
         className={`fixed top-0 left-0 right-0 z-[9999] ${
-          isDetailPage ? "hidden md:block" : ""
-        } ${
           scrolled
             ? "bg-cinema-bg/95 backdrop-blur-md shadow-xl shadow-black/30"
             : "bg-transparent"
