@@ -79,6 +79,7 @@ export default function WatchFreeMovies() {
             isPartOf: {
               "@type": "WebSite",
               name: seoConfig.siteName,
+              alternateName: seoConfig.alternateSiteName,
               url: seoConfig.siteUrl,
             },
           },
@@ -86,6 +87,7 @@ export default function WatchFreeMovies() {
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: seoConfig.siteName,
+            alternateName: seoConfig.alternateSiteName,
             url: seoConfig.siteUrl,
             potentialAction: {
               "@type": "SearchAction",
@@ -100,6 +102,7 @@ export default function WatchFreeMovies() {
             "@context": "https://schema.org",
             "@type": "Organization",
             name: seoConfig.siteName,
+            alternateName: seoConfig.alternateSiteName,
             url: seoConfig.siteUrl,
             logo: `${seoConfig.siteUrl}/web-app-manifest-512x512.png`,
             email: contactEmail,

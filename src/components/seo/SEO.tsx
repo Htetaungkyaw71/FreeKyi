@@ -49,6 +49,7 @@ export function SEO({
     <Helmet prioritizeSeoTags>
       <title>{pageTitle}</title>
       <meta name="description" content={description} />
+      <meta name="application-name" content={seoConfig.siteName} />
       {keywords?.length ? (
         <meta name="keywords" content={keywords.join(", ")} />
       ) : null}

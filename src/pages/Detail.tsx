@@ -27,8 +27,10 @@ import {
   getTVCredits,
   getMovieRecommendations,
   getTVRecommendations,
+  getTVSeasonDetails,
   getEmbedUrl,
   BACKDROP_LG,
+  IMAGE_BASE,
   POSTER_LG,
 } from "../services/tmdb";
 import { useBookmark } from "../hooks/useBookmark";
@@ -37,6 +39,7 @@ import type {
   MovieDetail,
   TVDetail,
   CastMember,
+  Episode,
   Movie,
   TVSeries,
 } from "../types";
@@ -55,18 +58,33 @@ interface DetailPageData {
 }
 
 const DETAIL_CACHE_TTL = 1000 * 60 * 10;
+const SEASON_CACHE_TTL = 1000 * 60 * 10;
 const detailCache = new Map<
   string,
   { data: DetailPageData; updatedAt: number }
+>();
+const seasonCache = new Map<
+  string,
+  { data: Episode[]; updatedAt: number }
 >();
 
 function getDetailCacheKey(mediaType: "movie" | "tv", id: number) {
   return `${mediaType}:${id}`;
 }
 
+function getSeasonCacheKey(id: number, seasonNumber: number) {
+  return `tv:${id}:season:${seasonNumber}`;
+}
+
 function getFreshDetailCache(key: string) {
   const cached = detailCache.get(key);
   if (!cached || Date.now() - cached.updatedAt >= DETAIL_CACHE_TTL) return null;
+  return cached.data;
+}
+
+function getFreshSeasonCache(key: string) {
+  const cached = seasonCache.get(key);
+  if (!cached || Date.now() - cached.updatedAt >= SEASON_CACHE_TTL) return null;
   return cached.data;
 }
 
@@ -123,6 +141,93 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
+function formatEpisodeRuntime(mins: number | null) {
+  if (!mins) return null;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function EpisodeCard({
+  item,
+  active,
+  onSelect,
+}: {
+  item: Episode;
+  active: boolean;
+  onSelect: () => void;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const stillUrl =
+    item.still_path && !imageFailed
+      ? `${IMAGE_BASE}/w300${item.still_path}`
+      : null;
+  const runtime = formatEpisodeRuntime(item.runtime);
+  const episodeTitle = item.name || `Episode ${item.episode_number}`;
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [item.still_path]);
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`group grid min-h-[104px] grid-cols-[112px_1fr] overflow-hidden rounded-xl border text-left transition-all duration-200 sm:grid-cols-[132px_1fr] ${
+        active
+          ? "border-cinema-accent bg-cinema-hover shadow-lg shadow-cinema-accent/10"
+          : "border-cinema-border bg-cinema-card hover:border-cinema-accent/70 hover:bg-cinema-hover"
+      }`}
+    >
+      <div className="relative h-full min-h-[104px] bg-gradient-to-br from-cinema-hover via-cinema-card to-black">
+        {stillUrl ? (
+          <img
+            src={stillUrl}
+            alt=""
+            className="h-full w-full object-cover opacity-90 transition-opacity duration-200 group-hover:opacity-75"
+            loading="lazy"
+            decoding="async"
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/25 text-cinema-muted">
+              <Clapperboard className="h-5 w-5" />
+            </div>
+          </div>
+        )}
+        <div className="absolute left-2 top-2 rounded-md bg-black/70 px-2 py-1 text-[11px] font-body font-semibold text-white">
+          Ep {item.episode_number}
+        </div>
+      </div>
+
+      <div className="flex min-w-0 flex-col justify-center p-3">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-2 text-sm font-body font-semibold leading-snug text-white">
+            {episodeTitle}
+          </h3>
+          {runtime && (
+            <span className="flex-shrink-0 text-[11px] font-body text-cinema-muted">
+              {runtime}
+            </span>
+          )}
+        </div>
+        {item.overview && (
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-cinema-muted">
+            {item.overview}
+          </p>
+        )}
+        {active && (
+          <span className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-cinema-accent px-2 py-0.5 text-[11px] font-body font-semibold text-white">
+            <Play className="h-3 w-3 fill-white" />
+            Selected
+          </span>
+        )}
+      </div>
+    </button>
+  );
+}
+
 function CastAvatar({ member }: { member: CastMember }) {
   const [imageFailed, setImageFailed] = useState(false);
   const profileUrl =
@@ -174,6 +279,9 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const [season, setSeason] = useState(() =>
     mediaType === "tv" ? getStoredProgress(numId).season : 1,
   );
+  const [episodeListSeason, setEpisodeListSeason] = useState(() =>
+    mediaType === "tv" ? getStoredProgress(numId).season : 1,
+  );
   const [episode, setEpisode] = useState(() =>
     mediaType === "tv" ? getStoredProgress(numId).episode : 1,
   );
@@ -182,6 +290,8 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const [copied, setCopied] = useState(false);
   const [heroImageFailed, setHeroImageFailed] = useState(false);
   const [posterImageFailed, setPosterImageFailed] = useState(false);
+  const [seasonEpisodes, setSeasonEpisodes] = useState<Episode[]>([]);
+  const [seasonEpisodesLoading, setSeasonEpisodesLoading] = useState(false);
   const shareMenuRef = useRef<HTMLDivElement | null>(null);
 
   const { isBookmarked, toggle } = useBookmark();
@@ -262,6 +372,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
     if (mediaType !== "tv") return;
     const p = getStoredProgress(numId);
     setSeason(p.season);
+    setEpisodeListSeason(p.season);
     setEpisode(p.episode);
   }, [numId, mediaType]);
 
@@ -273,6 +384,47 @@ export default function Detail({ mediaType }: DetailPageProps) {
       // ignore
     }
   }, [season, episode, numId, mediaType, STORAGE_KEY]);
+
+  useEffect(() => {
+    if (!numId || mediaType !== "tv") {
+      setSeasonEpisodes([]);
+      setSeasonEpisodesLoading(false);
+      return;
+    }
+
+    const seasonCacheKey = getSeasonCacheKey(numId, episodeListSeason);
+    const cachedEpisodes = getFreshSeasonCache(seasonCacheKey);
+    if (cachedEpisodes) {
+      setSeasonEpisodes(cachedEpisodes);
+      setSeasonEpisodesLoading(false);
+      return;
+    }
+
+    let isActive = true;
+    setSeasonEpisodes([]);
+    setSeasonEpisodesLoading(true);
+
+    getTVSeasonDetails(numId, episodeListSeason)
+      .then((response) => {
+        const episodes = response.data.episodes ?? [];
+        seasonCache.set(seasonCacheKey, {
+          data: episodes,
+          updatedAt: Date.now(),
+        });
+        if (isActive) setSeasonEpisodes(episodes);
+      })
+      .catch((error) => {
+        console.error(error);
+        if (isActive) setSeasonEpisodes([]);
+      })
+      .finally(() => {
+        if (isActive) setSeasonEpisodesLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [numId, mediaType, episodeListSeason]);
 
   useEffect(() => {
     if (!shareOpen) return;
@@ -340,10 +492,37 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const seasons = (detail as TVDetail).number_of_seasons;
   const episodes = (detail as TVDetail).number_of_episodes;
   const tvSeasons = (detail as TVDetail).seasons ?? [];
+  const visibleTvSeasons = tvSeasons.filter((s) => s.season_number > 0);
   const embedUrl = getEmbedUrl(numId, mediaType, season, episode);
   const currentEpisodeCount =
-    tvSeasons.find((s) => s.season_number === season)?.episode_count ?? 1;
+    tvSeasons.find((s) => s.season_number === episodeListSeason)
+      ?.episode_count ?? 1;
   const showEpisodeGrid = currentEpisodeCount > 12;
+  const largestSeasonEpisodeCount = visibleTvSeasons.reduce(
+    (maxCount, item) => Math.max(maxCount, item.episode_count),
+    0,
+  );
+  const showRichEpisodeCards =
+    largestSeasonEpisodeCount > 0 && largestSeasonEpisodeCount <= 20;
+  const episodeCards = Array.from({ length: currentEpisodeCount }).map(
+    (_, idx) => {
+      const episodeNumber = idx + 1;
+      return (
+        seasonEpisodes.find((item) => item.episode_number === episodeNumber) ??
+        {
+          id: -episodeNumber,
+          name: `Episode ${episodeNumber}`,
+          overview: "",
+          episode_number: episodeNumber,
+          season_number: episodeListSeason,
+          still_path: null,
+          air_date: "",
+          runtime: null,
+          vote_average: 0,
+        }
+      );
+    },
+  );
   const seoTitle =
     mediaType === "movie"
       ? `Watch ${title} Online Free${year ? ` (${year})` : ""}`
@@ -422,6 +601,21 @@ export default function Detail({ mediaType }: DetailPageProps) {
     }
 
     setShareOpen((value) => !value);
+  };
+
+  const jumpToPlayer = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  };
+
+  const handleSeasonChange = (seasonNumber: number) => {
+    setEpisodeListSeason(seasonNumber);
+  };
+
+  const handleEpisodeChange = (episodeNumber: number) => {
+    setSeason(episodeListSeason);
+    setEpisode(episodeNumber);
+    setIsPlaying(false);
+    jumpToPlayer();
   };
 
   return (
@@ -530,64 +724,102 @@ export default function Detail({ mediaType }: DetailPageProps) {
           </div>
 
           {mediaType === "tv" &&
-            tvSeasons.filter((s) => s.season_number > 0).length > 0 && (
-              <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-8 flex flex-col md:flex-row md:items-start gap-3">
-                {/* Season dropdown */}
-                <div className="relative w-full md:w-auto">
-                  <select
-                    value={season}
-                    onChange={(e) => {
-                      setSeason(Number(e.target.value));
-                      setEpisode(1);
-                      setIsPlaying(false);
-                    }}
-                    className="w-full md:w-auto bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
-                  >
-                    {tvSeasons
-                      .filter((s) => s.season_number > 0)
-                      .map((s) => (
+            visibleTvSeasons.length > 0 && (
+              <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-8">
+                <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  {/* Season dropdown */}
+                  <div className="relative w-full sm:w-52">
+                    <select
+                      value={episodeListSeason}
+                      onChange={(e) => {
+                        handleSeasonChange(Number(e.target.value));
+                      }}
+                      className="w-full bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
+                    >
+                      {visibleTvSeasons.map((s) => (
                         <option key={s.id} value={s.season_number}>
                           Season {s.season_number}
                         </option>
                       ))}
-                  </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
+                  </div>
+
+                  {showRichEpisodeCards && (
+                    <p className="text-xs font-body text-cinema-muted">
+                      {currentEpisodeCount} episodes
+                    </p>
+                  )}
                 </div>
 
-                {/* Episode pill buttons — scrollable row */}
-                <div className="relative w-full md:flex-1">
-                  <div className="episode-scroll-fade overflow-x-auto scrollbar-hide px-2 md:px-0">
-                    <div
-                      className={
-                        showEpisodeGrid
-                          ? "grid grid-flow-col grid-rows-3 auto-cols-max gap-2 pb-1"
-                          : "flex gap-2 pb-1"
-                      }
-                    >
-                      {Array.from({
-                        length: currentEpisodeCount,
-                      }).map((_, idx) => {
-                        const ep = idx + 1;
-                        return (
-                          <button
-                            key={ep}
-                            onClick={() => {
-                              setEpisode(ep);
-                              setIsPlaying(false);
-                            }}
-                            className={`px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-[13px] md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                              ep === episode
-                                ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
-                                : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
-                            }`}
-                          >
-                            Ep {ep}
-                          </button>
-                        );
-                      })}
+                {showRichEpisodeCards && seasonEpisodesLoading ? (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {Array.from({ length: Math.min(currentEpisodeCount, 6) }).map(
+                      (_, idx) => (
+                        <div
+                          key={idx}
+                          className="grid min-h-[104px] grid-cols-[112px_1fr] overflow-hidden rounded-xl border border-cinema-border bg-cinema-card sm:grid-cols-[132px_1fr]"
+                        >
+                          <div className="skeleton h-full min-h-[104px]" />
+                          <div className="space-y-3 p-3">
+                            <div className="skeleton h-4 w-3/4 rounded" />
+                            <div className="skeleton h-3 w-full rounded" />
+                            <div className="skeleton h-3 w-2/3 rounded" />
+                          </div>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                ) : showRichEpisodeCards ? (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {episodeCards.map((item) => (
+                      <EpisodeCard
+                        key={item.id}
+                        item={item}
+                        active={
+                          episodeListSeason === season &&
+                          item.episode_number === episode
+                        }
+                        onSelect={() => {
+                          handleEpisodeChange(item.episode_number);
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="relative w-full">
+                    <div className="episode-scroll-fade overflow-x-auto scrollbar-hide px-2 md:px-0">
+                      <div
+                        className={
+                          showEpisodeGrid
+                            ? "grid grid-flow-col grid-rows-3 auto-cols-max gap-2 pb-1"
+                            : "flex gap-2 pb-1"
+                        }
+                      >
+                        {Array.from({
+                          length: currentEpisodeCount,
+                        }).map((_, idx) => {
+                          const ep = idx + 1;
+                          return (
+                            <button
+                              key={ep}
+                              onClick={() => {
+                                handleEpisodeChange(ep);
+                              }}
+                              className={`px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-[13px] md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                                episodeListSeason === season && ep === episode
+                                  ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
+                                  : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
+                              }`}
+                            >
+                              Ep {ep}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
         </div>

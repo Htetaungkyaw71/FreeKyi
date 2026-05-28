@@ -60,6 +60,7 @@ export default function Contact() {
           mainEntity: {
             "@type": "Organization",
             name: seoConfig.siteName,
+            alternateName: seoConfig.alternateSiteName,
             url: seoConfig.siteUrl,
             logo: `${seoConfig.siteUrl}/web-app-manifest-512x512.png`,
             email: contactEmail,

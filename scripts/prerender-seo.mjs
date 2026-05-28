@@ -124,6 +124,7 @@ const staticSeoPages = [
         isPartOf: {
           "@type": "WebSite",
           name: "FreeKyi",
+          alternateName: "Freekyi",
           url: siteUrl,
         },
       },
@@ -131,6 +132,7 @@ const staticSeoPages = [
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: "FreeKyi",
+        alternateName: "Freekyi",
         url: siteUrl,
         potentialAction: {
           "@type": "SearchAction",
@@ -145,6 +147,7 @@ const staticSeoPages = [
         "@context": "https://schema.org",
         "@type": "Organization",
         name: "FreeKyi",
+        alternateName: "Freekyi",
         url: siteUrl,
         logo: `${siteUrl}/web-app-manifest-512x512.png`,
         email: contactEmail,
@@ -180,6 +183,7 @@ const staticSeoPages = [
       mainEntity: {
         "@type": "Organization",
         name: "FreeKyi",
+        alternateName: "Freekyi",
         url: siteUrl,
         logo: `${siteUrl}/web-app-manifest-512x512.png`,
         email: contactEmail,
@@ -203,6 +207,7 @@ const staticSeoPages = [
       mainEntity: {
         "@type": "Organization",
         name: "FreeKyi",
+        alternateName: "Freekyi",
         url: siteUrl,
         logo: `${siteUrl}/web-app-manifest-512x512.png`,
         email: contactEmail,

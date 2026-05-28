@@ -141,22 +141,33 @@ export default function Home() {
           "Korean dramas",
           "new movies online",
         ]}
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: seoConfig.siteName,
-          url: seoConfig.siteUrl,
-          description:
-            "Watch free movies and TV series online, including trending films, new releases, Korean dramas, and popular TV shows.",
-          potentialAction: {
-            "@type": "SearchAction",
-            target: {
-              "@type": "EntryPoint",
-              urlTemplate: `${seoConfig.siteUrl}/search?q={search_term_string}`,
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: seoConfig.siteName,
+            alternateName: seoConfig.alternateSiteName,
+            url: seoConfig.siteUrl,
+            description:
+              "Watch free movies and TV series online, including trending films, new releases, Korean dramas, and popular TV shows.",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate: `${seoConfig.siteUrl}/search?q={search_term_string}`,
+              },
+              "query-input": "required name=search_term_string",
             },
-            "query-input": "required name=search_term_string",
           },
-        }}
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: seoConfig.siteName,
+            alternateName: seoConfig.alternateSiteName,
+            url: seoConfig.siteUrl,
+            logo: `${seoConfig.siteUrl}${seoConfig.defaultImage}`,
+          },
+        ]}
       />
       <motion.div
         initial={{ opacity: 0 }}

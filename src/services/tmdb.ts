@@ -7,6 +7,7 @@ import type {
   TMDBResponse,
   CreditsResponse,
   Genre,
+  SeasonDetail,
 } from "../types";
 
 const API_KEY = import.meta.env.VITE_MOVIE_APIKEY;
@@ -66,6 +67,9 @@ export const getAiringTodayTV = (page = 1) =>
   api.get<TMDBResponse<TVSeries>>("/tv/airing_today", { params: { page } });
 
 export const getTVDetails = (id: number) => api.get<TVDetail>(`/tv/${id}`);
+
+export const getTVSeasonDetails = (id: number, seasonNumber: number) =>
+  api.get<SeasonDetail>(`/tv/${id}/season/${seasonNumber}`);
 
 export const getTVCredits = (id: number) =>
   api.get<CreditsResponse>(`/tv/${id}/credits`);
