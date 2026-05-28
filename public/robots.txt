@@ -23,4 +23,4 @@ User-agent: ClaudeBot
 Allow: /
 
 # Sitemap
-Sitemap: https://freekyi.com/sitemap.xml
+Sitemap: https://www.freekyi.com/sitemap.xml

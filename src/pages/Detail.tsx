@@ -41,6 +41,7 @@ import type {
   TVSeries,
 } from "../types";
 import { SEO } from "../components/seo/SEO";
+import { seoConfig } from "../components/seo/config";
 import { parseMediaId, slugifyTitle } from "../utils/mediaUrls";
 
 interface DetailPageProps {
@@ -445,7 +446,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
           name: title,
           description: detail.overview || seoDescription,
           image: seoImage || undefined,
-          url: `https://freekyi.com${canonicalPath}`,
+          url: `${seoConfig.siteUrl}${canonicalPath}`,
           datePublished: releaseDate || undefined,
           genre: detail.genres.map((g) => g.name),
           aggregateRating:

@@ -5,11 +5,17 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, "..");
 const outputPath = resolve(rootDir, "public/sitemap.xml");
-const siteUrl = (
+function normalizeSiteUrl(value) {
+  return value
+    .replace(/\/$/, "")
+    .replace(/^https:\/\/freekyi\.com$/, "https://www.freekyi.com");
+}
+
+const siteUrl = normalizeSiteUrl(
   process.env.VITE_SITE_URL ||
-  process.env.SITE_URL ||
-  "https://freekyi.com"
-).replace(/\/$/, "");
+    process.env.SITE_URL ||
+    "https://www.freekyi.com",
+);
 
 function parseEnvFile(contents) {
   return Object.fromEntries(

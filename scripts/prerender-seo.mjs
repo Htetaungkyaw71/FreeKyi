@@ -7,11 +7,17 @@ const rootDir = resolve(__dirname, "..");
 const distDir = resolve(rootDir, "dist");
 const indexPath = resolve(distDir, "index.html");
 const sitemapPath = resolve(rootDir, "public/sitemap.xml");
-const siteUrl = (
+function normalizeSiteUrl(value) {
+  return value
+    .replace(/\/$/, "")
+    .replace(/^https:\/\/freekyi\.com$/, "https://www.freekyi.com");
+}
+
+const siteUrl = normalizeSiteUrl(
   process.env.VITE_SITE_URL ||
-  process.env.SITE_URL ||
-  "https://freekyi.com"
-).replace(/\/$/, "");
+    process.env.SITE_URL ||
+    "https://www.freekyi.com",
+);
 const sameAsLinks = [
   "https://t.me/+bKYkU_aTmgM4NmFl",
   "https://www.facebook.com/share/1CpaDU1353/?mibextid=wwXIfr",

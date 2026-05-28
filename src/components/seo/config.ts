@@ -1,6 +1,6 @@
 export const seoConfig = {
   siteName: "FreeKyi",
-  siteUrl: "https://freekyi.com",
+  siteUrl: "https://www.freekyi.com",
   defaultImage: "/web-app-manifest-512x512.png",
 };
 
