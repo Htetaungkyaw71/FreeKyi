@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MediaCard } from "../components/cards/MediaCard";
 import { FilterBar } from "../components/ui/FilterBar";
+import { COUNTRIES, SORT_OPTIONS, YEARS } from "../components/ui/filterOptions";
 import { Pagination } from "../components/ui/Pagination";
 import { GridSkeleton } from "../components/skeletons";
 import {
@@ -15,7 +16,7 @@ import {
   getAiringTodayTV,
 } from "../services/tmdb";
 import type { Movie, TVSeries, Genre, FilterState } from "../types";
-import { SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import { SEO } from "../components/seo/SEO";
 import { seoConfig } from "../components/seo/config";
 
@@ -29,6 +30,9 @@ interface BrowsePageData {
 }
 
 const BROWSE_CACHE_TTL = 1000 * 60 * 10;
+const desktopSelectClass =
+  "h-11 w-full appearance-none rounded-full border border-cinema-border bg-cinema-card py-0 pl-4 pr-10 text-sm text-cinema-text outline-none transition-colors hover:border-cinema-accent/50 focus:border-cinema-accent";
+
 const browseCache = new Map<
   string,
   { data: BrowsePageData; updatedAt: number }
@@ -250,6 +254,12 @@ export default function Browse({ mediaType }: BrowseProps) {
 
   const baseTitle = mediaType === "movie" ? "Movies" : "TV Series";
   const sortParam = searchParams.get("sort");
+  const hasActiveFilters =
+    filters.genre !== null ||
+    filters.year !== null ||
+    filters.rating !== null ||
+    filters.country !== null ||
+    filters.sortBy !== "popularity.desc";
 
   let title = baseTitle;
   if (sortParam === "now_playing" && !filters.genre)
@@ -309,29 +319,119 @@ export default function Browse({ mediaType }: BrowseProps) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen pt-16 md:pt-20 pb-0"
+        className="min-h-screen pt-20 md:pt-[100px] pb-0"
       >
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
           {/* Header */}
-          <div className="flex items-start justify-between gap-4 mb-6 md:mb-8">
-            <div>
-              <h1 className="font-display text-4xl md:text-5xl text-white">
-                {genreLabel ? genreLabel : title}
-              </h1>
-              <p className="text-cinema-muted text-sm font-body mt-1">
-                {(totalPages * 20).toLocaleString()} {title} Available
-              </p>
+          <div className="mb-5 md:mb-7">
+            <div className="flex items-start justify-between gap-4 md:items-end">
+              <div className="min-w-0">
+                <h1 className="font-display text-4xl text-white md:text-5xl">
+                  {genreLabel ? genreLabel : title}
+                </h1>
+                <p className="mt-1 text-sm font-body text-cinema-muted">
+                  {(totalPages * 20).toLocaleString()} {title} Available
+                </p>
+              </div>
+              <button
+                onClick={() => setShowFilterMobile(!showFilterMobile)}
+                className="mt-2 flex items-center gap-2 rounded-lg border border-cinema-border bg-cinema-card px-3.5 py-2 text-sm text-cinema-text md:hidden"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                Filters
+              </button>
+
+              <div className="hidden max-w-[980px] flex-1 flex-wrap items-center justify-end gap-2 md:flex">
+                <div className="relative w-40 lg:w-44">
+                  <select
+                    value={filters.genre ?? ""}
+                    onChange={(e) =>
+                      handleFilterChange({
+                        genre: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                    className={desktopSelectClass}
+                  >
+                    <option value="">All genres</option>
+                    {genres.map((genre) => (
+                      <option key={genre.id} value={genre.id}>
+                        {genre.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
+                </div>
+
+                <div className="relative w-40 lg:w-44">
+                  <select
+                    value={filters.sortBy}
+                    onChange={(e) =>
+                      handleFilterChange({ sortBy: e.target.value })
+                    }
+                    className={desktopSelectClass}
+                  >
+                    {SORT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
+                </div>
+
+                <div className="relative w-32 lg:w-36">
+                  <select
+                    value={filters.year ?? ""}
+                    onChange={(e) =>
+                      handleFilterChange({
+                        year: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                    className={desktopSelectClass}
+                  >
+                    <option value="">Any year</option>
+                    {YEARS.map((yearOption) => (
+                      <option key={yearOption} value={yearOption}>
+                        {yearOption}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
+                </div>
+
+                <div className="relative w-40 lg:w-44">
+                  <select
+                    value={filters.country ?? ""}
+                    onChange={(e) =>
+                      handleFilterChange({
+                        country: e.target.value ? e.target.value : null,
+                      })
+                    }
+                    className={desktopSelectClass}
+                  >
+                    <option value="">Any country</option>
+                    {COUNTRIES.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  disabled={!hasActiveFilters}
+                  className="h-11 rounded-full border border-cinema-border px-4 text-sm font-body font-semibold text-cinema-muted transition-colors hover:border-cinema-accent hover:text-white disabled:cursor-default disabled:opacity-40 disabled:hover:border-cinema-border disabled:hover:text-cinema-muted"
+                >
+                  Reset
+                </button>
+              </div>
             </div>
-            <button
-              onClick={() => setShowFilterMobile(!showFilterMobile)}
-              className="mt-2 md:hidden flex items-center gap-2 bg-cinema-card border border-cinema-border px-3.5 py-2 rounded-lg text-sm text-cinema-text"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filters
-            </button>
           </div>
 
-          <div className="flex gap-6">
+          <div>
             {/* Mobile Overlay */}
             {showFilterMobile && (
               <div
@@ -365,16 +465,6 @@ export default function Browse({ mediaType }: BrowseProps) {
               />
             </aside>
 
-            {/* Desktop sticky sidebar */}
-            <aside className="hidden md:block md:w-64 md:flex-shrink-0 md:self-start md:sticky md:top-20 md:max-h-[calc(100vh-6rem)] md:overflow-y-auto md:pr-1 md:scrollbar-hide">
-              <FilterBar
-                genres={genres}
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                onReset={handleReset}
-              />
-            </aside>
-
             {/* Grid */}
 
             <div className="flex-1 min-w-0">
@@ -389,7 +479,7 @@ export default function Browse({ mediaType }: BrowseProps) {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 md:gap-4">
                     {items.map((item, idx) => (
                       <MediaCard
                         key={item.id}

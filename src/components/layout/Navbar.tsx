@@ -434,7 +434,10 @@ export function Navbar() {
       >
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/favicon.svg" width={70} height={70} alt="FreeKyi" />
+            <img src="/favicon.svg" width={60} height={60} alt="FreeKyi" />
+            <span className="hidden text-lg font-body font-bold tracking-wide text-white md:inline">
+              FreeKyi
+            </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -466,7 +469,22 @@ export function Navbar() {
                   setTopVisible(true);
                   setSearchOpen((v) => !v);
                 }}
-                className="w-9 h-9 rounded-full flex items-center justify-center text-cinema-muted hover:text-white hover:bg-cinema-hover transition-all"
+                className="hidden h-10 min-w-64 items-center justify-between gap-3 rounded-full border border-cinema-border bg-cinema-card/80 px-4 text-sm text-cinema-muted transition-colors hover:border-cinema-accent/50 hover:text-white lg:flex"
+                aria-label="Search"
+              >
+                <span className="flex items-center gap-2">
+                  <Search className="w-4 h-4" />
+                  Search titles...
+                </span>
+              </button>
+            )}
+            {location.pathname !== "/search" && (
+              <button
+                onClick={() => {
+                  setTopVisible(true);
+                  setSearchOpen((v) => !v);
+                }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-cinema-muted hover:text-white hover:bg-cinema-hover transition-all lg:hidden"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />

@@ -1,5 +1,6 @@
-import { SlidersHorizontal, RotateCcw } from "lucide-react";
+import { ChevronDown, SlidersHorizontal, RotateCcw } from "lucide-react";
 import type { Genre, FilterState } from "../../types";
+import { COUNTRIES, SORT_OPTIONS, YEARS } from "./filterOptions";
 
 interface FilterBarProps {
   genres: Genre[];
@@ -8,28 +9,9 @@ interface FilterBarProps {
   onReset: () => void;
 }
 
-const SORT_OPTIONS = [
-  { value: "popularity.desc", label: "Most Popular" },
-  { value: "vote_average.desc", label: "Top Rated" },
-  { value: "release_date.desc", label: "Newest" },
-  { value: "revenue.desc", label: "Box Office" },
-];
+const selectClass =
+  "w-full appearance-none rounded-lg border border-cinema-border bg-cinema-hover py-2 pl-3 pr-10 text-sm text-cinema-text transition-colors focus:border-cinema-accent focus:outline-none";
 
-const COUNTRIES = [
-  { code: "US", name: "United States" },
-  { code: "KR", name: "South Korea" },
-  { code: "JP", name: "Japan" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "FR", name: "France" },
-  { code: "IN", name: "India" },
-  { code: "ES", name: "Spain" },
-  { code: "IT", name: "Italy" },
-  { code: "DE", name: "Germany" },
-  { code: "CN", name: "China" },
-];
-
-const CURRENT_YEAR = new Date().getFullYear();
-const YEARS = Array.from({ length: 30 }, (_, i) => CURRENT_YEAR - i);
 // const RATINGS = [9, 8, 7, 6, 5];
 
 export function FilterBar({
@@ -42,7 +24,8 @@ export function FilterBar({
     filters.genre !== null ||
     filters.year !== null ||
     filters.rating !== null ||
-    filters.country !== null;
+    filters.country !== null ||
+    filters.sortBy !== "popularity.desc";
 
   return (
     <div className="bg-cinema-card border border-cinema-border rounded-xl p-4 space-y-5">
@@ -55,15 +38,14 @@ export function FilterBar({
             <span className="w-2 h-2 bg-cinema-accent rounded-full" />
           )}
         </div>
-        {hasActiveFilters && (
-          <button
-            onClick={onReset}
-            className="flex items-center gap-1 text-xs text-cinema-muted hover:text-cinema-accent transition-colors"
-          >
-            <RotateCcw className="w-3 h-3" />
-            Reset
-          </button>
-        )}
+        <button
+          onClick={onReset}
+          disabled={!hasActiveFilters}
+          className="flex items-center gap-1 text-xs text-cinema-muted transition-colors hover:text-cinema-accent disabled:cursor-default disabled:opacity-40 disabled:hover:text-cinema-muted"
+        >
+          <RotateCcw className="w-3 h-3" />
+          Reset
+        </button>
       </div>
 
       {/* Sort By */}
@@ -71,39 +53,45 @@ export function FilterBar({
         <label className="block text-xs text-cinema-muted font-body uppercase tracking-wider mb-2">
           Sort By
         </label>
-        <select
-          value={filters.sortBy}
-          onChange={(e) => onFilterChange({ sortBy: e.target.value })}
-          className="w-full bg-cinema-hover border border-cinema-border rounded-lg px-3 py-2 text-sm text-cinema-text focus:outline-none focus:border-cinema-accent transition-colors"
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={filters.sortBy}
+            onChange={(e) => onFilterChange({ sortBy: e.target.value })}
+            className={selectClass}
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
+        </div>
       </div>
 
       <div>
         <label className="block text-xs text-cinema-muted font-body uppercase tracking-wider mb-2">
           Country
         </label>
-        <select
-          value={filters.country ?? ""}
-          onChange={(e) =>
-            onFilterChange({
-              country: e.target.value ? e.target.value : null,
-            })
-          }
-          className="w-full bg-cinema-hover border border-cinema-border rounded-lg px-3 py-2 text-sm text-cinema-text focus:outline-none focus:border-cinema-accent transition-colors"
-        >
-          <option value="">All Countries</option>
-          {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={filters.country ?? ""}
+            onChange={(e) =>
+              onFilterChange({
+                country: e.target.value ? e.target.value : null,
+              })
+            }
+            className={selectClass}
+          >
+            <option value="">All Countries</option>
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
+        </div>
       </div>
 
       {/* Genre */}
@@ -135,22 +123,25 @@ export function FilterBar({
         <label className="block text-xs text-cinema-muted font-body uppercase tracking-wider mb-2">
           Year
         </label>
-        <select
-          value={filters.year ?? ""}
-          onChange={(e) =>
-            onFilterChange({
-              year: e.target.value ? Number(e.target.value) : null,
-            })
-          }
-          className="w-full bg-cinema-hover border border-cinema-border rounded-lg px-3 py-2 text-sm text-cinema-text focus:outline-none focus:border-cinema-accent transition-colors"
-        >
-          <option value="">All Years</option>
-          {YEARS.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={filters.year ?? ""}
+            onChange={(e) =>
+              onFilterChange({
+                year: e.target.value ? Number(e.target.value) : null,
+              })
+            }
+            className={selectClass}
+          >
+            <option value="">All Years</option>
+            {YEARS.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
+        </div>
       </div>
 
       {/* Country */}
