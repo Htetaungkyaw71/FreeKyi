@@ -335,13 +335,13 @@ export default function Browse({ mediaType }: BrowseProps) {
               </div>
               <button
                 onClick={() => setShowFilterMobile(!showFilterMobile)}
-                className="mt-2 flex items-center gap-2 rounded-lg border border-cinema-border bg-cinema-card px-3.5 py-2 text-sm text-cinema-text md:hidden"
+                className="mt-2 flex items-center gap-2 rounded-lg border border-cinema-border bg-cinema-card px-3.5 py-2 text-sm text-cinema-text lg:hidden"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
               </button>
 
-              <div className="hidden max-w-[980px] flex-1 flex-wrap items-center justify-end gap-2 md:flex">
+              <div className="hidden max-w-[980px] flex-1 flex-wrap items-center justify-end gap-2 lg:flex">
                 <div className="relative w-40 lg:w-44">
                   <select
                     value={filters.genre ?? ""}
@@ -435,14 +435,14 @@ export default function Browse({ mediaType }: BrowseProps) {
             {/* Mobile Overlay */}
             {showFilterMobile && (
               <div
-                className="fixed inset-0 bg-black/80 z-[90] md:hidden"
+                className="fixed inset-0 bg-black/80 z-[90] lg:hidden"
                 onClick={() => setShowFilterMobile(false)}
               />
             )}
 
             {/* Mobile filter drawer */}
             <aside
-              className={`fixed inset-x-0 bottom-0 z-[9999] max-h-[85svh] w-full overflow-y-auto rounded-t-2xl border-t border-cinema-border bg-cinema-bg p-6 scrollbar-hide transform transition-transform duration-300 ease-in-out md:hidden ${
+              className={`fixed inset-x-0 bottom-0 z-[9999] max-h-[85svh] w-full overflow-y-auto rounded-t-2xl border-t border-cinema-border bg-cinema-bg p-6 scrollbar-hide transform transition-transform duration-300 ease-in-out lg:hidden ${
                 showFilterMobile ? "translate-y-0" : "translate-y-[110%]"
               }`}
             >
