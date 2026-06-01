@@ -484,7 +484,7 @@ export function Navbar() {
                   setTopVisible(true);
                   setSearchOpen((v) => !v);
                 }}
-                className="w-9 h-9 rounded-full flex items-center justify-center text-cinema-muted hover:text-white hover:bg-cinema-hover transition-all lg:hidden"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-cinema-muted max-md:text-slate-300  hover:text-white hover:bg-cinema-hover transition-all lg:hidden"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />

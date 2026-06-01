@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, RefreshCw, Share, Smartphone, X } from "lucide-react";
+import { Download, Plus, RefreshCw, Share, Smartphone, X } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -34,6 +34,7 @@ export function PWAInstallPrompt() {
   const [installed, setInstalled] = useState(isStandaloneApp);
   const [isIOS] = useState(isAppleMobileBrowser);
   const [updateReady, setUpdateReady] = useState(false);
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   useEffect(() => {
     if (installed) return;
@@ -80,6 +81,7 @@ export function PWAInstallPrompt() {
 
   const handleDismiss = () => {
     setShow(false);
+    setShowIOSInstructions(false);
     localStorage.setItem("pwa-prompt-dismissed", String(Date.now()));
   };
 
@@ -133,10 +135,14 @@ export function PWAInstallPrompt() {
                     Install
                   </button>
                 ) : (
-                  <div className="flex min-h-11 w-full items-center justify-center gap-1.5 text-white text-xs font-body font-semibold px-3 py-2 rounded-lg bg-cinema-hover border border-cinema-border text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowIOSInstructions(true)}
+                    className="flex min-h-11 w-full items-center justify-center gap-1.5 text-white text-xs font-body font-semibold px-3 py-2 rounded-lg bg-cinema-hover border border-cinema-border text-center transition-colors hover:border-cinema-accent/60"
+                  >
                     <Share className="w-3.5 h-3.5" />
                     Add to Home Screen
-                  </div>
+                  </button>
                 )}
                 <button
                   onClick={handleDismiss}
@@ -156,6 +162,82 @@ export function PWAInstallPrompt() {
           </div>
         </div>
       </motion.div>
+
+      {showIOSInstructions && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[10001] flex items-end justify-center bg-black/70 px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] backdrop-blur-sm sm:items-center sm:pb-4"
+          onClick={() => setShowIOSInstructions(false)}
+        >
+          <motion.div
+            initial={{ y: 32, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 32, opacity: 0, scale: 0.98 }}
+            transition={{ type: "spring", damping: 22, stiffness: 260 }}
+            className="w-full max-w-sm rounded-2xl border border-cinema-border bg-cinema-card p-5 shadow-2xl shadow-black/60"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-lg font-body font-semibold text-white">
+                  Install FreeKyi on iPhone
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-cinema-muted">
+                  Tap Share, then Add to Home Screen.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowIOSInstructions(false)}
+                className="-m-1 flex-shrink-0 p-1 text-cinema-muted transition-colors hover:text-white"
+                aria-label="Close iOS install instructions"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 rounded-xl border border-cinema-border bg-cinema-hover/70 p-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-cinema-accent/15 text-cinema-accent">
+                  <Share className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    1. Tap the Share button
+                  </p>
+                  <p className="text-xs leading-relaxed text-cinema-muted">
+                    It is in the Safari toolbar.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-cinema-border bg-cinema-hover/70 p-3">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-cinema-accent/15 text-cinema-accent">
+                  <Plus className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    2. Choose Add to Home Screen
+                  </p>
+                  <p className="text-xs leading-relaxed text-cinema-muted">
+                    Then tap Add to install the app.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowIOSInstructions(false)}
+              className="mt-4 min-h-11 w-full rounded-xl bg-cinema-accent px-4 py-2 text-sm font-body font-semibold text-white transition-colors hover:bg-red-700"
+            >
+              Got it
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 }
