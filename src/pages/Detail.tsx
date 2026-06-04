@@ -691,12 +691,14 @@ export default function Detail({ mediaType }: DetailPageProps) {
           {/* Player */}
           <div className="top-0 z-[80] max-w-screen-2xl mx-auto bg-black pb-4 shadow-2xl shadow-black/70 md:relative md:top-auto md:z-10 md:shadow-none">
             <div className="relative w-full aspect-video overflow-hidden bg-black shadow-2xl shadow-black/60">
-              <EmbedPlayer
-                key={selectedVideoServer?.id ?? embedUrl}
-                embedUrl={embedUrl}
-                title={title}
-                className="shadow-none"
-              />
+              {isPlaying && (
+                <EmbedPlayer
+                  key={selectedVideoServer?.id ?? embedUrl}
+                  embedUrl={embedUrl}
+                  title={title}
+                  className="shadow-none"
+                />
+              )}
 
               {!isPlaying && (
                 <button

@@ -108,6 +108,10 @@ body {
 }
 
 @media (max-width: 767px) {
+  .pwa-standalone .pwa-top-nav {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
   .swiper-button-next,
   .swiper-button-prev {
     display: none !important;

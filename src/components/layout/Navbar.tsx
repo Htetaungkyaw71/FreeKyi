@@ -421,7 +421,7 @@ export function Navbar() {
     <>
       {/* ── Top nav ───────────────────────────────────────────────────── */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-[9999] ${
+        className={`pwa-top-nav fixed top-0 left-0 right-0 z-[9999] ${
           scrolled
             ? "bg-cinema-bg/95 backdrop-blur-md shadow-xl shadow-black/30"
             : "bg-transparent"
