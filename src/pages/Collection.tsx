@@ -233,7 +233,10 @@ export default function Collection() {
           </div>
 
           {loading ? (
-            <GridSkeleton count={20} />
+            <GridSkeleton
+              count={20}
+              className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4 xl:grid-cols-5"
+            />
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-cinema-border bg-cinema-card py-16 text-center">
               <Clapperboard className="h-10 w-10 text-cinema-muted" />

@@ -107,49 +107,7 @@ function createStaticUrls(today) {
       priority: "0.5",
     },
     { loc: "/movies", lastmod: today, changefreq: "daily", priority: "0.8" },
-    {
-      loc: "/movies?sort=now_playing",
-      lastmod: today,
-      changefreq: "daily",
-      priority: "0.7",
-    },
-    {
-      loc: "/movies?sort=upcoming",
-      lastmod: today,
-      changefreq: "daily",
-      priority: "0.7",
-    },
-    {
-      loc: "/movies?genre=28",
-      lastmod: today,
-      changefreq: "weekly",
-      priority: "0.6",
-    },
-    {
-      loc: "/movies?genre=27",
-      lastmod: today,
-      changefreq: "weekly",
-      priority: "0.6",
-    },
-    {
-      loc: "/movies?genre=16",
-      lastmod: today,
-      changefreq: "weekly",
-      priority: "0.6",
-    },
     { loc: "/tv", lastmod: today, changefreq: "daily", priority: "0.8" },
-    {
-      loc: "/tv?country=KR",
-      lastmod: today,
-      changefreq: "daily",
-      priority: "0.7",
-    },
-    {
-      loc: "/tv?sort=airing_today",
-      lastmod: today,
-      changefreq: "daily",
-      priority: "0.7",
-    },
     ...collectionUrls,
   ];
 }

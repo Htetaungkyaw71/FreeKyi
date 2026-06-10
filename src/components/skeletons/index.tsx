@@ -200,9 +200,17 @@ export function DetailSkeleton({ mediaType = "tv" }: DetailSkeletonProps) {
 //   );
 // }
 
-export function GridSkeleton({ count = 20 }: { count?: number }) {
+interface GridSkeletonProps {
+  count?: number;
+  className?: string;
+}
+
+export function GridSkeleton({
+  count = 20,
+  className = "grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 md:gap-4",
+}: GridSkeletonProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-6 gap-4">
+    <div className={className}>
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="rounded-lg overflow-hidden bg-cinema-card">
           <div className="skeleton aspect-[2/3] w-full" />

@@ -203,7 +203,6 @@ export default function SearchPage() {
         title={searchTitle}
         description={searchDescription}
         path={searchPath}
-        noIndex={!trimmedQuery}
         keywords={[
           trimmedQuery,
           `${trimmedQuery} movie`,
@@ -211,6 +210,7 @@ export default function SearchPage() {
           "free movies search",
           "watch movies online",
         ].filter(Boolean)}
+        noIndex
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "SearchResultsPage",
@@ -297,7 +297,10 @@ export default function SearchPage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <GridSkeleton count={12} />
+                <GridSkeleton
+                  count={12}
+                  className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+                />
               </motion.div>
             ) : results.length > 0 ? (
               <motion.div

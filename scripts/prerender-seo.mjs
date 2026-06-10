@@ -108,6 +108,42 @@ const watchFreeMoviesFaqs = [
 
 const staticSeoPages = [
   {
+    pathname: "/",
+    title: "FreeKyi - Watch Free Movies and TV Series Online",
+    description:
+      "Watch free movies and TV series online on FreeKyi. Explore trending films, new releases, Korean dramas, anime, action, horror, comedy, and popular shows.",
+    image: `${siteUrl}/web-app-manifest-512x512.png`,
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "FreeKyi",
+        alternateName: "Freekyi",
+        url: siteUrl,
+        description:
+          "Watch free movies and TV series online, including trending films, new releases, Korean dramas, anime, and popular TV shows.",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${siteUrl}/search?q={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "FreeKyi",
+        alternateName: "Freekyi",
+        url: siteUrl,
+        logo: `${siteUrl}/web-app-manifest-512x512.png`,
+        email: contactEmail,
+        sameAs: sameAsLinks,
+      },
+    ],
+  },
+  {
     pathname: "/watch-free-movies-online",
     title: "Where to Watch Movies Online Free | FreeKyi",
     description:
@@ -166,6 +202,67 @@ const staticSeoPages = [
         })),
       },
     ],
+  },
+  {
+    pathname: "/movies",
+    title: "Watch Movies Online Free | FreeKyi",
+    description:
+      "Browse free movies online on FreeKyi, including trending movies, new releases, action, horror, romance, comedy, animation, and popular film collections.",
+    image: `${siteUrl}/web-app-manifest-512x512.png`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Watch Movies Online Free",
+      description:
+        "Browse free movies online on FreeKyi, including trending movies, new releases, action, horror, romance, comedy, animation, and popular film collections.",
+      url: `${siteUrl}/movies`,
+      isPartOf: {
+        "@type": "WebSite",
+        name: "FreeKyi",
+        url: siteUrl,
+      },
+    },
+  },
+  {
+    pathname: "/tv",
+    title: "Watch TV Series Online Free | FreeKyi",
+    description:
+      "Browse free TV series online on FreeKyi, including trending shows, Korean dramas, anime series, airing-today episodes, and popular series collections.",
+    image: `${siteUrl}/web-app-manifest-512x512.png`,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Watch TV Series Online Free",
+      description:
+        "Browse free TV series online on FreeKyi, including trending shows, Korean dramas, anime series, airing-today episodes, and popular series collections.",
+      url: `${siteUrl}/tv`,
+      isPartOf: {
+        "@type": "WebSite",
+        name: "FreeKyi",
+        url: siteUrl,
+      },
+    },
+  },
+  {
+    pathname: "/search",
+    title: "Search Free Movies and TV Series | FreeKyi",
+    description:
+      "Search FreeKyi for free movies, TV series, Korean dramas, anime, new releases, and trending titles to watch online.",
+    image: `${siteUrl}/web-app-manifest-512x512.png`,
+    noIndex: true,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "SearchResultsPage",
+      name: "Search Free Movies and TV Series",
+      description:
+        "Search FreeKyi for free movies, TV series, Korean dramas, anime, new releases, and trending titles to watch online.",
+      url: `${siteUrl}/search`,
+      isPartOf: {
+        "@type": "WebSite",
+        name: "FreeKyi",
+        url: siteUrl,
+      },
+    },
   },
   {
     pathname: "/about",
@@ -401,10 +498,21 @@ function collectionSeoHead({ canonicalUrl, description, image, title }) {
     <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`;
 }
 
-function staticSeoHead({ canonicalUrl, description, image, jsonLd, title }) {
+function staticSeoHead({
+  canonicalUrl,
+  description,
+  image,
+  jsonLd,
+  noIndex = false,
+  title,
+}) {
+  const robots = noIndex
+    ? "noindex, follow"
+    : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+
   return `    <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content="${robots}" />
     <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="FreeKyi" />
@@ -511,12 +619,17 @@ for (const page of staticSeoPages) {
       description: page.description,
       image: page.image,
       jsonLd: page.jsonLd,
+      noIndex: page.noIndex,
       title: page.title,
     }),
   );
-  const outputDir = resolve(distDir, page.pathname.slice(1));
-  await mkdir(outputDir, { recursive: true });
-  await writeFile(resolve(outputDir, "index.html"), html);
+  if (page.pathname === "/") {
+    await writeFile(indexPath, html);
+  } else {
+    const outputDir = resolve(distDir, page.pathname.slice(1));
+    await mkdir(outputDir, { recursive: true });
+    await writeFile(resolve(outputDir, "index.html"), html);
+  }
 }
 
 await mapWithConcurrency(details, 6, async ({ id, mediaType, pathname }) => {
