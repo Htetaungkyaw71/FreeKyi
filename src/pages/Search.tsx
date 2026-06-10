@@ -239,45 +239,45 @@ export default function SearchPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="min-h-screen pt-20 pb-6 md:pb-16"
+        className="min-h-screen pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))] pt-[4.75rem] md:pb-16 md:pt-20"
       >
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
           {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-8">
+          <div className="mx-auto mb-6 max-w-2xl md:mb-8">
             {/* <h1 className="font-display text-4xl text-white text-center mb-6">
             Search
           </h1> */}
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cinema-muted" />
+              <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-cinema-muted md:left-4" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
                 placeholder="Search movies, TV shows, and more..."
-                className="w-full bg-cinema-card border border-cinema-border rounded-2xl pl-12 pr-4 py-4 text-cinema-text placeholder-cinema-muted text-lg focus:outline-none focus:border-cinema-accent transition-colors"
+                className="w-full rounded-xl border border-cinema-border bg-cinema-card py-3 pl-11 pr-11 text-base text-cinema-text placeholder-cinema-muted transition-colors focus:border-cinema-accent focus:outline-none md:rounded-2xl md:py-4 md:pl-12 md:pr-12 md:text-lg"
                 autoFocus
               />
               {query && (
                 <button
                   type="button"
                   onClick={handleClearSearch}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-cinema-muted hover:text-white"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-cinema-muted transition-colors hover:text-white md:right-4"
                   aria-label="Clear search"
                 >
-                  <X />
+                  <X className="h-5 w-5 md:h-6 md:w-6" />
                 </button>
               )}
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 mt-4 justify-center">
+            <div className="mt-4 flex justify-start gap-2 overflow-x-auto scrollbar-hide px-0.5 sm:justify-center">
               {tabs.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => dispatch(setActiveTab(id))}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-body font-medium transition-all ${
+                  className={`flex flex-shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-sm font-body font-medium transition-all md:px-4 ${
                     activeTab === id
-                      ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
+                      ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/20"
                       : "bg-cinema-card border border-cinema-border text-cinema-muted hover:text-white"
                   }`}
                 >
