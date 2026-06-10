@@ -99,6 +99,12 @@ function createStaticUrls(today) {
       changefreq: "weekly",
       priority: "0.9",
     },
+    {
+      loc: "/myanmar-subtitles",
+      lastmod: today,
+      changefreq: "weekly",
+      priority: "0.9",
+    },
     { loc: "/about", lastmod: today, changefreq: "monthly", priority: "0.5" },
     {
       loc: "/contact",

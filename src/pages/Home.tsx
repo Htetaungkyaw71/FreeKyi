@@ -131,13 +131,17 @@ export default function Home() {
     <>
       <SEO
         title="Watch Free Movies & TV Series Online"
-        description="Watch free movies and TV series online on FreeKyi. Explore trending films, new releases, Korean dramas, action, horror, animation, and popular TV shows."
+        description="Watch free movies and TV series online on FreeKyi. Explore MM sub movies, Myanmar subtitles, trending films, Korean dramas, anime, action, horror, and popular shows."
         path="/"
         keywords={[
           "free movies",
           "watch movies online",
           "free TV series",
           "stream movies free",
+          "mm sub",
+          "Myanmar subtitles",
+          "Burmese subtitles",
+          "free mm movies",
           "Korean dramas",
           "new movies online",
         ]}
@@ -149,7 +153,7 @@ export default function Home() {
             alternateName: seoConfig.alternateSiteName,
             url: seoConfig.siteUrl,
             description:
-              "Watch free movies and TV series online, including trending films, new releases, Korean dramas, and popular TV shows.",
+              "Watch free movies and TV series online, including MM sub movies, Myanmar subtitles, trending films, Korean dramas, anime, and popular TV shows.",
             potentialAction: {
               "@type": "SearchAction",
               target: {

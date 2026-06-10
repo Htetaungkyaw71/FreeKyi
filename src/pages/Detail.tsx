@@ -63,10 +63,7 @@ const detailCache = new Map<
   string,
   { data: DetailPageData; updatedAt: number }
 >();
-const seasonCache = new Map<
-  string,
-  { data: Episode[]; updatedAt: number }
->();
+const seasonCache = new Map<string, { data: Episode[]; updatedAt: number }>();
 
 function getDetailCacheKey(mediaType: "movie" | "tv", id: number) {
   return `${mediaType}:${id}`;
@@ -526,8 +523,9 @@ export default function Detail({ mediaType }: DetailPageProps) {
     (_, idx) => {
       const episodeNumber = idx + 1;
       return (
-        seasonEpisodes.find((item) => item.episode_number === episodeNumber) ??
-        {
+        seasonEpisodes.find(
+          (item) => item.episode_number === episodeNumber,
+        ) ?? {
           id: -episodeNumber,
           name: `Episode ${episodeNumber}`,
           overview: "",
@@ -690,7 +688,8 @@ export default function Detail({ mediaType }: DetailPageProps) {
 
           {/* Player */}
           <div className="top-0 z-[80] max-w-screen-2xl mx-auto bg-black pb-4 shadow-2xl shadow-black/70 md:relative md:top-auto md:z-10 md:shadow-none">
-            <div className="relative w-full aspect-video overflow-hidden bg-black shadow-2xl shadow-black/60">
+            <div className="aspect-video w-full md:hidden" aria-hidden="true" />
+            <div className="fixed inset-x-0 top-0 z-[80] aspect-video w-full overflow-hidden bg-black shadow-2xl shadow-black/60 md:relative md:inset-auto md:z-auto">
               {isPlaying && (
                 <EmbedPlayer
                   key={selectedVideoServer?.id ?? embedUrl}
@@ -752,10 +751,9 @@ export default function Detail({ mediaType }: DetailPageProps) {
             </div>
 
             {videoServers.length > 1 && (
-              <div className="relative z-[120] px-4 py-4 md:px-8">
+              <div className="relative z-[70] px-4 py-4 md:px-8">
                 <p className="mb-3 text-xs font-body text-cinema-muted">
-                  If this server does not work, please switch to another
-                  server.
+                  If this server does not work, please switch to another server.
                 </p>
                 <div className="flex gap-2 overflow-x-auto scrollbar-hide touch-pan-x">
                   {videoServers.map((server, index) => (
@@ -780,105 +778,104 @@ export default function Detail({ mediaType }: DetailPageProps) {
             )}
           </div>
 
-          {mediaType === "tv" &&
-            visibleTvSeasons.length > 0 && (
-              <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-8">
-                <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  {/* Season dropdown */}
-                  <div className="relative w-full sm:w-52">
-                    <select
-                      value={episodeListSeason}
-                      onChange={(e) => {
-                        handleSeasonChange(Number(e.target.value));
-                      }}
-                      className="w-full bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
-                    >
-                      {visibleTvSeasons.map((s) => (
-                        <option key={s.id} value={s.season_number}>
-                          Season {s.season_number}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
-                  </div>
-
-                  {showRichEpisodeCards && (
-                    <p className="text-xs font-body text-cinema-muted">
-                      {currentEpisodeCount} episodes
-                    </p>
-                  )}
+          {mediaType === "tv" && visibleTvSeasons.length > 0 && (
+            <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-8">
+              <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                {/* Season dropdown */}
+                <div className="relative w-full sm:w-52">
+                  <select
+                    value={episodeListSeason}
+                    onChange={(e) => {
+                      handleSeasonChange(Number(e.target.value));
+                    }}
+                    className="w-full bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
+                  >
+                    {visibleTvSeasons.map((s) => (
+                      <option key={s.id} value={s.season_number}>
+                        Season {s.season_number}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
                 </div>
 
-                {showRichEpisodeCards && seasonEpisodesLoading ? (
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {Array.from({ length: Math.min(currentEpisodeCount, 6) }).map(
-                      (_, idx) => (
-                        <div
-                          key={idx}
-                          className="grid min-h-[104px] grid-cols-[112px_1fr] overflow-hidden rounded-xl border border-cinema-border bg-cinema-card sm:grid-cols-[132px_1fr]"
-                        >
-                          <div className="skeleton h-full min-h-[104px]" />
-                          <div className="space-y-3 p-3">
-                            <div className="skeleton h-4 w-3/4 rounded" />
-                            <div className="skeleton h-3 w-full rounded" />
-                            <div className="skeleton h-3 w-2/3 rounded" />
-                          </div>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                ) : showRichEpisodeCards ? (
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {episodeCards.map((item) => (
-                      <EpisodeCard
-                        key={item.id}
-                        item={item}
-                        active={
-                          episodeListSeason === season &&
-                          item.episode_number === episode
-                        }
-                        onSelect={() => {
-                          handleEpisodeChange(item.episode_number);
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="relative w-full">
-                    <div className="episode-scroll-fade overflow-x-auto scrollbar-hide px-2 md:px-0">
-                      <div
-                        className={
-                          showEpisodeGrid
-                            ? "grid grid-flow-col grid-rows-3 auto-cols-max gap-2 pb-1"
-                            : "flex gap-2 pb-1"
-                        }
-                      >
-                        {Array.from({
-                          length: currentEpisodeCount,
-                        }).map((_, idx) => {
-                          const ep = idx + 1;
-                          return (
-                            <button
-                              key={ep}
-                              onClick={() => {
-                                handleEpisodeChange(ep);
-                              }}
-                              className={`px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-[13px] md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
-                                episodeListSeason === season && ep === episode
-                                  ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
-                                  : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
-                              }`}
-                            >
-                              Ep {ep}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
+                {showRichEpisodeCards && (
+                  <p className="text-xs font-body text-cinema-muted">
+                    {currentEpisodeCount} episodes
+                  </p>
                 )}
               </div>
-            )}
+
+              {showRichEpisodeCards && seasonEpisodesLoading ? (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: Math.min(currentEpisodeCount, 6) }).map(
+                    (_, idx) => (
+                      <div
+                        key={idx}
+                        className="grid min-h-[104px] grid-cols-[112px_1fr] overflow-hidden rounded-xl border border-cinema-border bg-cinema-card sm:grid-cols-[132px_1fr]"
+                      >
+                        <div className="skeleton h-full min-h-[104px]" />
+                        <div className="space-y-3 p-3">
+                          <div className="skeleton h-4 w-3/4 rounded" />
+                          <div className="skeleton h-3 w-full rounded" />
+                          <div className="skeleton h-3 w-2/3 rounded" />
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
+              ) : showRichEpisodeCards ? (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {episodeCards.map((item) => (
+                    <EpisodeCard
+                      key={item.id}
+                      item={item}
+                      active={
+                        episodeListSeason === season &&
+                        item.episode_number === episode
+                      }
+                      onSelect={() => {
+                        handleEpisodeChange(item.episode_number);
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="relative w-full">
+                  <div className="episode-scroll-fade overflow-x-auto scrollbar-hide px-2 md:px-0">
+                    <div
+                      className={
+                        showEpisodeGrid
+                          ? "grid grid-flow-col grid-rows-3 auto-cols-max gap-2 pb-1"
+                          : "flex gap-2 pb-1"
+                      }
+                    >
+                      {Array.from({
+                        length: currentEpisodeCount,
+                      }).map((_, idx) => {
+                        const ep = idx + 1;
+                        return (
+                          <button
+                            key={ep}
+                            onClick={() => {
+                              handleEpisodeChange(ep);
+                            }}
+                            className={`px-2.5 py-2 md:px-3 md:py-2 rounded-lg text-[13px] md:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                              episodeListSeason === season && ep === episode
+                                ? "bg-cinema-accent text-white shadow-lg shadow-cinema-accent/30"
+                                : "bg-cinema-card text-cinema-text border border-cinema-border hover:border-cinema-accent"
+                            }`}
+                          >
+                            Ep {ep}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ── METADATA ZONE ────────────────────────────────────────────────────── */}
@@ -1067,8 +1064,9 @@ export default function Detail({ mediaType }: DetailPageProps) {
               <h2 className="font-display text-2xl text-white mb-5">Cast</h2>
               <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-4">
                 {cast.map((member) => (
-                  <div
+                  <Link
                     key={member.id}
+                    to={`/person/${member.id}-${slugifyTitle(member.name)}`}
                     className="flex-shrink-0 w-24 text-center"
                   >
                     <CastAvatar member={member} />
@@ -1078,7 +1076,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
                     <p className="text-cinema-muted text-[11px] font-body leading-tight mt-0.5 line-clamp-2">
                       {member.character}
                     </p>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>

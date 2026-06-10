@@ -106,12 +106,35 @@ const watchFreeMoviesFaqs = [
   },
 ];
 
+const myanmarSubtitleFaqs = [
+  {
+    question: "What does MM sub mean?",
+    answer:
+      "MM sub usually means Myanmar subtitles or Burmese subtitles for movies, TV series, anime, and drama titles.",
+  },
+  {
+    question: "Can I find free MM movies on FreeKyi?",
+    answer:
+      "FreeKyi helps viewers browse and search movies, TV series, Korean drama, anime, and trending titles commonly searched as MM movies or free MM movies.",
+  },
+  {
+    question: "Can I search by movie name with Myanmar subtitles?",
+    answer:
+      "Yes. Use FreeKyi search to look up a movie or TV series name, then open the detail page for cast, overview, ratings, recommendations, and watch options.",
+  },
+  {
+    question: "Are Myanmar subtitles and Burmese subtitles the same search intent?",
+    answer:
+      "Many viewers use Myanmar subtitles, Burmese subtitles, MM subtitles, and MM sub to search for the same kind of subtitle-friendly movie and TV experience.",
+  },
+];
+
 const staticSeoPages = [
   {
     pathname: "/",
     title: "FreeKyi - Watch Free Movies and TV Series Online",
     description:
-      "Watch free movies and TV series online on FreeKyi. Explore trending films, new releases, Korean dramas, anime, action, horror, comedy, and popular shows.",
+      "Watch free movies and TV series online on FreeKyi. Explore MM sub movies, Myanmar subtitles, trending films, Korean dramas, anime, and popular shows.",
     image: `${siteUrl}/web-app-manifest-512x512.png`,
     jsonLd: [
       {
@@ -121,7 +144,7 @@ const staticSeoPages = [
         alternateName: "Freekyi",
         url: siteUrl,
         description:
-          "Watch free movies and TV series online, including trending films, new releases, Korean dramas, anime, and popular TV shows.",
+          "Watch free movies and TV series online, including MM sub movies, Myanmar subtitles, trending films, Korean dramas, anime, and popular TV shows.",
         potentialAction: {
           "@type": "SearchAction",
           target: {
@@ -193,6 +216,41 @@ const staticSeoPages = [
         "@context": "https://schema.org",
         "@type": "FAQPage",
         mainEntity: watchFreeMoviesFaqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
+  },
+  {
+    pathname: "/myanmar-subtitles",
+    title: "MM Sub Movies and Myanmar Subtitles | FreeKyi",
+    description:
+      "Find MM sub movies, Myanmar subtitles, Burmese subtitles, free MM movies, TV series, Korean drama, anime, and trending titles on FreeKyi.",
+    image: `${siteUrl}/web-app-manifest-512x512.png`,
+    jsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "MM Sub Movies and Myanmar Subtitles",
+        description:
+          "Find MM sub movies, Myanmar subtitles, Burmese subtitles, free MM movies, TV series, Korean drama, anime, and trending titles on FreeKyi.",
+        url: `${siteUrl}/myanmar-subtitles`,
+        isPartOf: {
+          "@type": "WebSite",
+          name: "FreeKyi",
+          alternateName: "Freekyi",
+          url: siteUrl,
+        },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: myanmarSubtitleFaqs.map((faq) => ({
           "@type": "Question",
           name: faq.question,
           acceptedAnswer: {

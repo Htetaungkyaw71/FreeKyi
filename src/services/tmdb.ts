@@ -8,6 +8,8 @@ import type {
   TMDBResponse,
   CreditsResponse,
   Genre,
+  PersonCombinedCreditsResponse,
+  PersonDetail,
   SeasonDetail,
 } from "../types";
 
@@ -119,6 +121,13 @@ export const searchMovies = (query: string, page = 1) =>
 
 export const searchTV = (query: string, page = 1) =>
   api.get<TMDBResponse<TVSeries>>("/search/tv", { params: { query, page } });
+
+// People
+export const getPersonDetails = (id: number) =>
+  api.get<PersonDetail>(`/person/${id}`);
+
+export const getPersonCombinedCredits = (id: number) =>
+  api.get<PersonCombinedCreditsResponse>(`/person/${id}/combined_credits`);
 
 // Genres (Horror = 27, Thriller = 53, Action = 28, etc.)
 export const getHorrorMovies = (page = 1) =>

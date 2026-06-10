@@ -15,7 +15,9 @@ const Collection = lazy(() => import("./pages/Collection"));
 const SearchPage = lazy(() => import("./pages/Search"));
 const Bookmarks = lazy(() => import("./pages/Bookmarks"));
 const Watchlist = lazy(() => import("./pages/Watchlist"));
+const Person = lazy(() => import("./pages/Person"));
 const WatchFreeMovies = lazy(() => import("./pages/WatchFreeMovies"));
+const MyanmarSubtitles = lazy(() => import("./pages/MyanmarSubtitles"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 
@@ -52,10 +54,15 @@ function AppRoutes() {
               <Route path="/tv" element={<Browse mediaType="tv" />} />
               <Route path="/movie/:id" element={<Detail mediaType="movie" />} />
               <Route path="/tv/:id" element={<Detail mediaType="tv" />} />
+              <Route path="/person/:id" element={<Person />} />
               <Route path="/collections/:slug" element={<Collection />} />
               <Route
                 path="/watch-free-movies-online"
                 element={<WatchFreeMovies />}
+              />
+              <Route
+                path="/myanmar-subtitles"
+                element={<MyanmarSubtitles />}
               />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />

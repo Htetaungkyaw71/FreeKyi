@@ -124,6 +124,31 @@ export interface CreditsResponse {
 
 export type MediaType = "movie" | "tv";
 
+export interface PersonDetail {
+  id: number;
+  name: string;
+  biography: string;
+  birthday: string | null;
+  deathday: string | null;
+  place_of_birth: string | null;
+  profile_path: string | null;
+  known_for_department: string;
+  popularity: number;
+  also_known_as: string[];
+}
+
+export type PersonCredit = (Movie | TVSeries) & {
+  media_type: "movie" | "tv";
+  character?: string;
+  episode_count?: number;
+};
+
+export interface PersonCombinedCreditsResponse {
+  id: number;
+  cast: PersonCredit[];
+  crew: PersonCredit[];
+}
+
 export interface FilterState {
   genre: number | null;
   year: number | null;
