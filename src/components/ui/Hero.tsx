@@ -44,7 +44,7 @@ export function Hero({ movies, loading }: HeroProps) {
   const bookmarked = isBookmarked(current.id, "movie");
 
   return (
-    <div className="relative w-full h-[80vh] min-h-[550px] overflow-hidden">
+    <div className="relative h-[80vh] min-h-[550px] max-h-[900px] w-full overflow-hidden">
       {/* Background */}
       <AnimatePresence mode="wait">
         <motion.div

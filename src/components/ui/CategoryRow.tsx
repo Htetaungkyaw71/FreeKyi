@@ -46,7 +46,11 @@ export function CategoryRow({ title, items, type, viewAllLink, loading }: Catego
           className="!px-4 md:!px-8"
         >
           {items.slice(0, 16).map((item, idx) => (
-            <SwiperSlide key={item.id} style={{ width: 'auto' }} className="!w-[140px] sm:!w-[160px] md:!w-[180px]">
+            <SwiperSlide
+              key={item.id}
+              style={{ width: "auto" }}
+              className="!w-[140px] sm:!w-[160px] md:!w-[180px]"
+            >
               <MediaCard item={item} type={type} index={idx} />
             </SwiperSlide>
           ))}
