@@ -142,7 +142,7 @@ export default function Person() {
       <div className="min-h-screen bg-cinema-bg px-4 pt-24 md:px-8">
         <div className="mx-auto max-w-screen-2xl">
           <div className="mb-8 grid gap-6 md:grid-cols-[220px_1fr]">
-            <div className="skeleton aspect-[2/3] rounded-lg" />
+            <div className="skeleton max-md:hidden aspect-[2/3] rounded-lg" />
             <div className="space-y-4">
               <div className="skeleton h-10 w-64 rounded" />
               <div className="skeleton h-4 w-48 rounded" />
