@@ -1,6 +1,7 @@
-import { ChevronDown, SlidersHorizontal, RotateCcw } from "lucide-react";
+import { SlidersHorizontal, RotateCcw } from "lucide-react";
 import type { Genre, FilterState } from "../../types";
 import { COUNTRIES, SORT_OPTIONS, YEARS } from "./filterOptions";
+import { CustomSelect } from "./CustomSelect";
 
 interface FilterBarProps {
   genres: Genre[];
@@ -8,9 +9,6 @@ interface FilterBarProps {
   onFilterChange: (filters: Partial<FilterState>) => void;
   onReset: () => void;
 }
-
-const selectClass =
-  "w-full appearance-none rounded-lg border border-cinema-border bg-cinema-hover py-2 pl-3 pr-10 text-sm text-cinema-text transition-colors focus:border-cinema-accent focus:outline-none";
 
 // const RATINGS = [9, 8, 7, 6, 5];
 
@@ -26,6 +24,24 @@ export function FilterBar({
     filters.rating !== null ||
     filters.country !== null ||
     filters.sortBy !== "popularity.desc";
+  const sortOptions = SORT_OPTIONS.map((option) => ({
+    label: option.label,
+    value: option.value,
+  }));
+  const countryOptions = [
+    { label: "All Countries", value: "" },
+    ...COUNTRIES.map((country) => ({
+      label: country.name,
+      value: country.code,
+    })),
+  ];
+  const yearOptions = [
+    { label: "All Years", value: "" },
+    ...YEARS.map((year) => ({
+      label: String(year),
+      value: String(year),
+    })),
+  ];
 
   return (
     <div className="bg-cinema-card border border-cinema-border rounded-xl p-4 space-y-5">
@@ -53,45 +69,30 @@ export function FilterBar({
         <label className="block text-xs text-cinema-muted font-body uppercase tracking-wider mb-2">
           Sort By
         </label>
-        <div className="relative">
-          <select
-            value={filters.sortBy}
-            onChange={(e) => onFilterChange({ sortBy: e.target.value })}
-            className={selectClass}
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
-        </div>
+        <CustomSelect
+          ariaLabel="Sort by"
+          value={filters.sortBy}
+          options={sortOptions}
+          onChange={(value) => onFilterChange({ sortBy: value })}
+          buttonClassName="rounded-lg bg-cinema-hover"
+        />
       </div>
 
       <div>
         <label className="block text-xs text-cinema-muted font-body uppercase tracking-wider mb-2">
           Country
         </label>
-        <div className="relative">
-          <select
-            value={filters.country ?? ""}
-            onChange={(e) =>
-              onFilterChange({
-                country: e.target.value ? e.target.value : null,
-              })
-            }
-            className={selectClass}
-          >
-            <option value="">All Countries</option>
-            {COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
-        </div>
+        <CustomSelect
+          ariaLabel="Country"
+          value={filters.country ?? ""}
+          options={countryOptions}
+          onChange={(value) =>
+            onFilterChange({
+              country: value ? value : null,
+            })
+          }
+          buttonClassName="rounded-lg bg-cinema-hover"
+        />
       </div>
 
       {/* Genre */}
@@ -123,25 +124,17 @@ export function FilterBar({
         <label className="block text-xs text-cinema-muted font-body uppercase tracking-wider mb-2">
           Year
         </label>
-        <div className="relative">
-          <select
-            value={filters.year ?? ""}
-            onChange={(e) =>
-              onFilterChange({
-                year: e.target.value ? Number(e.target.value) : null,
-              })
-            }
-            className={selectClass}
-          >
-            <option value="">All Years</option>
-            {YEARS.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
-        </div>
+        <CustomSelect
+          ariaLabel="Year"
+          value={filters.year ? String(filters.year) : ""}
+          options={yearOptions}
+          onChange={(value) =>
+            onFilterChange({
+              year: value ? Number(value) : null,
+            })
+          }
+          buttonClassName="rounded-lg bg-cinema-hover"
+        />
       </div>
 
       {/* Country */}

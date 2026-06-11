@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clapperboard } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clapperboard, Film, Sparkles, Tv } from "lucide-react";
 import { MediaCard } from "../components/cards/MediaCard";
 import { Pagination } from "../components/ui/Pagination";
 import { GridSkeleton } from "../components/skeletons";
@@ -183,12 +183,15 @@ export default function Collection() {
           <img
             src={collection.image}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover opacity-45"
+            className="absolute inset-0 h-full w-full object-cover opacity-35 blur-[1px] scale-105"
           />
-          <div className={`absolute inset-0 bg-gradient-to-br ${collection.accent}`} />
-          <div className="absolute inset-0 bg-gradient-to-t from-cinema-bg via-cinema-bg/70 to-black/35" />
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${collection.accent} opacity-70`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-cinema-bg via-cinema-bg/80 to-cinema-bg/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-cinema-bg via-cinema-bg/35 to-black/50" />
 
-          <div className="relative mx-auto max-w-screen-2xl px-4 py-16 md:px-8 md:py-24">
+          <div className="relative mx-auto max-w-screen-2xl px-4 py-10 md:px-8 md:py-16">
             <Link
               to="/"
               className="mb-8 inline-flex items-center gap-2 text-sm font-body text-white/70 transition-colors hover:text-white"
@@ -196,23 +199,74 @@ export default function Collection() {
               <ArrowLeft className="h-4 w-4" />
               Home
             </Link>
-            <div className="max-w-3xl">
-              <span className="mb-4 inline-flex rounded bg-black/45 px-2.5 py-1 text-[11px] font-body font-bold uppercase tracking-widest text-white/80 backdrop-blur-sm">
-                {collection.eyebrow}
-              </span>
-              <h1 className="font-display text-5xl leading-none text-white md:text-7xl">
-                {collection.title}
-              </h1>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/75 md:text-lg">
-                {collection.description}
-              </p>
+            <div className="grid items-end gap-8 md:grid-cols-[1fr_360px] lg:grid-cols-[1fr_440px]">
+              <div className="max-w-3xl">
+                <div className="mb-4 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-2 rounded bg-black/45 px-2.5 py-1 text-[11px] font-body font-bold uppercase tracking-widest text-white/80 backdrop-blur-sm">
+                    <Sparkles className="h-3.5 w-3.5 text-cinema-accent" />
+                    {collection.eyebrow}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded bg-white/10 px-2.5 py-1 text-[11px] font-body font-bold uppercase tracking-widest text-white/70 backdrop-blur-sm">
+                    {collection.mediaType === "movie" ? (
+                      <Film className="h-3.5 w-3.5" />
+                    ) : (
+                      <Tv className="h-3.5 w-3.5" />
+                    )}
+                    {collection.mediaType === "movie" ? "Movies" : "TV Series"}
+                  </span>
+                </div>
+                <h1 className="font-display text-5xl leading-none text-white md:text-7xl">
+                  {collection.title}
+                </h1>
+                <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/78 md:text-lg">
+                  {collection.description}
+                </p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <a
+                    href="#collection-titles"
+                    className="inline-flex items-center gap-2 rounded-full bg-cinema-accent px-5 py-3 text-sm font-body font-semibold text-white transition hover:bg-cinema-accent/90"
+                  >
+                    Start Browsing
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="hidden md:block">
+                <div className="group relative aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-cinema-card shadow-2xl shadow-black/40">
+                  <img
+                    src={collection.image}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover opacity-90 transition duration-700 group-hover:scale-105"
+                  />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${collection.accent} opacity-55`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <p className="text-[11px] font-body font-bold uppercase tracking-widest text-cinema-accent">
+                      Curated watch path
+                    </p>
+                    <p className="mt-1 font-display text-3xl leading-none text-white">
+                      {collection.title}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-screen-2xl px-4 py-8 md:px-8 md:py-10">
+        <section
+          id="collection-titles"
+          className="mx-auto max-w-screen-2xl px-4 py-8 md:px-8 md:py-10"
+        >
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
+              <div className="mb-2 flex items-center gap-2 text-[11px] font-body font-bold uppercase tracking-widest text-cinema-accent">
+                <Clapperboard className="h-3.5 w-3.5" />
+                Collection Titles
+              </div>
               <h2 className="font-display text-3xl text-white">
                 All {collection.title}
               </h2>
@@ -220,16 +274,6 @@ export default function Collection() {
                 Page {page} of {totalPages.toLocaleString()}
               </p>
             </div>
-            <Link
-              to={
-                collection.mediaType === "movie"
-                  ? "/movies"
-                  : "/tv"
-              }
-              className="hidden rounded-lg border border-cinema-border px-4 py-2 text-sm font-body text-cinema-muted transition-colors hover:border-cinema-accent hover:text-white md:block"
-            >
-              Browse All
-            </Link>
           </div>
 
           {loading ? (

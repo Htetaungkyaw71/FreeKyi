@@ -7,7 +7,6 @@ import {
   Calendar,
   Bookmark,
   BookmarkCheck,
-  ChevronDown,
   Check,
   Copy,
   ExternalLink,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import { EmbedPlayer } from "../components/player/VideoPlayer";
 import { CategoryRow } from "../components/ui/CategoryRow";
+import { CustomSelect } from "../components/ui/CustomSelect";
 import { DetailSkeleton } from "../components/skeletons";
 import {
   getMovieDetails,
@@ -505,6 +505,10 @@ export default function Detail({ mediaType }: DetailPageProps) {
   const episodes = (detail as TVDetail).number_of_episodes;
   const tvSeasons = (detail as TVDetail).seasons ?? [];
   const visibleTvSeasons = tvSeasons.filter((s) => s.season_number > 0);
+  const seasonOptions = visibleTvSeasons.map((s) => ({
+    label: `Season ${s.season_number}`,
+    value: String(s.season_number),
+  }));
   const selectedVideoServer =
     videoServers.find((server) => server.id === selectedServerId) ??
     videoServers[0];
@@ -782,22 +786,14 @@ export default function Detail({ mediaType }: DetailPageProps) {
             <div className="relative z-10 max-w-screen-2xl mx-auto px-4 md:px-8 pt-4 pb-8">
               <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 {/* Season dropdown */}
-                <div className="relative w-full sm:w-52">
-                  <select
-                    value={episodeListSeason}
-                    onChange={(e) => {
-                      handleSeasonChange(Number(e.target.value));
-                    }}
-                    className="w-full bg-cinema-card border border-cinema-border text-cinema-text text-sm px-4 py-2 pr-8 rounded-lg appearance-none cursor-pointer focus:outline-none focus:border-cinema-accent"
-                  >
-                    {visibleTvSeasons.map((s) => (
-                      <option key={s.id} value={s.season_number}>
-                        Season {s.season_number}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-cinema-muted pointer-events-none" />
-                </div>
+                <CustomSelect
+                  ariaLabel="Season"
+                  className="w-full sm:w-52"
+                  buttonClassName="rounded-lg"
+                  value={String(episodeListSeason)}
+                  options={seasonOptions}
+                  onChange={(value) => handleSeasonChange(Number(value))}
+                />
 
                 {showRichEpisodeCards && (
                   <p className="text-xs font-body text-cinema-muted">

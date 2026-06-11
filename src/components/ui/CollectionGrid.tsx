@@ -22,7 +22,7 @@ function CollectionCard({
   return (
     <Link
       to={`/collections/${collection.slug}`}
-      className={`group relative flex-shrink-0 overflow-hidden rounded-lg border border-white/10 bg-cinema-card shadow-lg shadow-black/20 outline-none transition-all duration-300 hover:-translate-y-0.5  hover:shadow-cinema-accent/10 focus-visible:border-cinema-accent focus-visible:ring-2 focus-visible:ring-cinema-accent/30 ${
+      className={`group relative flex-shrink-0 overflow-hidden rounded-lg border border-white/10 bg-cinema-card shadow-lg shadow-black/20 outline-none transition-all duration-300 hover:-translate-y-0.5 hover:border-cinema-accent/50 hover:shadow-cinema-accent/10 focus-visible:border-cinema-accent focus-visible:ring-2 focus-visible:ring-cinema-accent/30 ${
         compact ? "w-64 md:w-auto" : "w-72 md:w-auto"
       } aspect-[16/9]`}
       aria-label={`Open ${collection.title} collection`}

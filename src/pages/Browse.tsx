@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MediaCard } from "../components/cards/MediaCard";
 import { FilterBar } from "../components/ui/FilterBar";
+import { CustomSelect } from "../components/ui/CustomSelect";
 import { COUNTRIES, SORT_OPTIONS, YEARS } from "../components/ui/filterOptions";
 import { Pagination } from "../components/ui/Pagination";
 import { GridSkeleton } from "../components/skeletons";
@@ -16,7 +17,7 @@ import {
   getAiringTodayTV,
 } from "../services/tmdb";
 import type { Movie, TVSeries, Genre, FilterState } from "../types";
-import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { SEO } from "../components/seo/SEO";
 import { seoConfig } from "../components/seo/config";
 
@@ -30,8 +31,6 @@ interface BrowsePageData {
 }
 
 const BROWSE_CACHE_TTL = 1000 * 60 * 10;
-const desktopSelectClass =
-  "h-11 w-full appearance-none rounded-full border border-cinema-border bg-cinema-card py-0 pl-4 pr-10 text-sm text-cinema-text outline-none transition-colors hover:border-cinema-accent/50 focus:border-cinema-accent";
 
 const browseCache = new Map<
   string,
@@ -279,6 +278,31 @@ export default function Browse({ mediaType }: BrowseProps) {
     : browsePathBase;
   const mediaLabel = mediaType === "movie" ? "movies" : "TV series";
   const browseDescription = `Browse ${pageTitle.toLowerCase()} on FreeKyi. Find popular ${mediaLabel}, filter by genre, rating, year, country, and stream titles online.`;
+  const genreOptions = [
+    { label: "All genres", value: "" },
+    ...genres.map((genre) => ({
+      label: genre.name,
+      value: String(genre.id),
+    })),
+  ];
+  const sortOptions = SORT_OPTIONS.map((option) => ({
+    label: option.label,
+    value: option.value,
+  }));
+  const yearOptions = [
+    { label: "Any year", value: "" },
+    ...YEARS.map((yearOption) => ({
+      label: String(yearOption),
+      value: String(yearOption),
+    })),
+  ];
+  const countryOptions = [
+    { label: "Any country", value: "" },
+    ...COUNTRIES.map((country) => ({
+      label: country.name,
+      value: country.code,
+    })),
+  ];
 
   return (
     <>
@@ -342,82 +366,49 @@ export default function Browse({ mediaType }: BrowseProps) {
               </button>
 
               <div className="hidden max-w-[980px] flex-1 flex-wrap items-center justify-end gap-2 lg:flex">
-                <div className="relative w-40 lg:w-44">
-                  <select
-                    value={filters.genre ?? ""}
-                    onChange={(e) =>
-                      handleFilterChange({
-                        genre: e.target.value ? Number(e.target.value) : null,
-                      })
-                    }
-                    className={desktopSelectClass}
-                  >
-                    <option value="">All genres</option>
-                    {genres.map((genre) => (
-                      <option key={genre.id} value={genre.id}>
-                        {genre.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
-                </div>
+                <CustomSelect
+                  ariaLabel="Genre"
+                  className="w-40 lg:w-44"
+                  value={filters.genre ? String(filters.genre) : ""}
+                  options={genreOptions}
+                  onChange={(value) =>
+                    handleFilterChange({
+                      genre: value ? Number(value) : null,
+                    })
+                  }
+                />
 
-                <div className="relative w-40 lg:w-44">
-                  <select
-                    value={filters.sortBy}
-                    onChange={(e) =>
-                      handleFilterChange({ sortBy: e.target.value })
-                    }
-                    className={desktopSelectClass}
-                  >
-                    {SORT_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
-                </div>
+                <CustomSelect
+                  ariaLabel="Sort by"
+                  className="w-40 lg:w-44"
+                  value={filters.sortBy}
+                  options={sortOptions}
+                  onChange={(value) => handleFilterChange({ sortBy: value })}
+                />
 
-                <div className="relative w-32 lg:w-36">
-                  <select
-                    value={filters.year ?? ""}
-                    onChange={(e) =>
-                      handleFilterChange({
-                        year: e.target.value ? Number(e.target.value) : null,
-                      })
-                    }
-                    className={desktopSelectClass}
-                  >
-                    <option value="">Any year</option>
-                    {YEARS.map((yearOption) => (
-                      <option key={yearOption} value={yearOption}>
-                        {yearOption}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
-                </div>
+                <CustomSelect
+                  ariaLabel="Year"
+                  className="w-32 lg:w-36"
+                  value={filters.year ? String(filters.year) : ""}
+                  options={yearOptions}
+                  onChange={(value) =>
+                    handleFilterChange({
+                      year: value ? Number(value) : null,
+                    })
+                  }
+                />
 
-                <div className="relative w-40 lg:w-44">
-                  <select
-                    value={filters.country ?? ""}
-                    onChange={(e) =>
-                      handleFilterChange({
-                        country: e.target.value ? e.target.value : null,
-                      })
-                    }
-                    className={desktopSelectClass}
-                  >
-                    <option value="">Any country</option>
-                    {COUNTRIES.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cinema-muted" />
-                </div>
+                <CustomSelect
+                  ariaLabel="Country"
+                  className="w-40 lg:w-44"
+                  value={filters.country ?? ""}
+                  options={countryOptions}
+                  onChange={(value) =>
+                    handleFilterChange({
+                      country: value ? value : null,
+                    })
+                  }
+                />
 
                 <button
                   type="button"
