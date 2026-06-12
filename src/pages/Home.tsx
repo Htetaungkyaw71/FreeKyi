@@ -181,7 +181,7 @@ export default function Home() {
       >
         <Hero movies={trending} loading={loading} />
 
-        <div className="mt-8 space-y-10">
+        <div className="mt-8 space-y-12">
           {watchlist.length > 0 && (
             <CategoryRow
               title="Continue Watching"

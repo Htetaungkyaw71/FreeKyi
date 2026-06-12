@@ -60,7 +60,7 @@ export const collections: CollectionConfig[] = [
       "Dark, tense, and supernatural movies for late-night horror watching.",
     mediaType: "movie",
     accent: "from-red-700/35 to-zinc-950/75",
-    image: "https://image.tmdb.org/t/p/w780/6fKEw0I2FTD5FLOQ5q7L1tqf876.jpg",
+    image: "https://image.tmdb.org/t/p/w780/xugEpZk9YQ0DIz1aFvH5HGkqpZK.jpg",
     params: {
       with_genres: "27",
       sort_by: "popularity.desc",
@@ -90,7 +90,7 @@ export const collections: CollectionConfig[] = [
       "Feel-good romance, emotional drama, and date-night movie picks.",
     mediaType: "movie",
     accent: "from-rose-400/35 to-fuchsia-600/45",
-    image: "https://image.tmdb.org/t/p/w780/sra8XnL96OyLHENcglmZJg6HA8z.jpg",
+    image: "https://image.tmdb.org/t/p/w780/mxdiaM2tsx8M6W3zLgiPwAkhQfq.jpg",
     params: {
       with_genres: "10749",
       sort_by: "popularity.desc",
@@ -116,8 +116,7 @@ export const collections: CollectionConfig[] = [
     slug: "comedy-movies",
     title: "Comedy Movies",
     eyebrow: "Laugh Picks",
-    description:
-      "Funny, feel-good, and easygoing movies for relaxed watching.",
+    description: "Funny, feel-good, and easygoing movies for relaxed watching.",
     mediaType: "movie",
     accent: "from-yellow-400/30 to-emerald-500/40",
     image: "https://image.tmdb.org/t/p/w780/gkh6Nt8DtY1XT4gQsyFq9XAVJlJ.jpg",
@@ -135,7 +134,7 @@ export const collections: CollectionConfig[] = [
       "Recent and upcoming movies from 2026, sorted by what people are watching.",
     mediaType: "movie",
     accent: "from-cyan-500/35 to-cinema-accent/45",
-    image: "https://image.tmdb.org/t/p/w780/uIb9Tvae5haF0XcQBaPyufmxbb0.jpg",
+    image: "https://image.tmdb.org/t/p/w780/6zg7A9ICOthNR2TSXlT51KvXrsA.jpg",
     params: {
       sort_by: "popularity.desc",
       primary_release_year: 2026,

@@ -44,7 +44,7 @@ const collectionSeoPages = [
     title: "Horror Night",
     description:
       "Dark, tense, and supernatural movies for late-night horror watching.",
-    image: "https://image.tmdb.org/t/p/w780/6fKEw0I2FTD5FLOQ5q7L1tqf876.jpg",
+    image: "https://image.tmdb.org/t/p/w780/xugEpZk9YQ0DIz1aFvH5HGkqpZK.jpg",
   },
   {
     slug: "action-movies",
@@ -58,7 +58,7 @@ const collectionSeoPages = [
     title: "Romantic Movies",
     description:
       "Feel-good romance, emotional drama, and date-night movie picks.",
-    image: "https://image.tmdb.org/t/p/w780/sra8XnL96OyLHENcglmZJg6HA8z.jpg",
+    image: "https://image.tmdb.org/t/p/w780/mxdiaM2tsx8M6W3zLgiPwAkhQfq.jpg",
   },
   {
     slug: "marvel-movies",
@@ -79,7 +79,7 @@ const collectionSeoPages = [
     title: "New Movies 2026",
     description:
       "Recent and upcoming movies from 2026, sorted by what people are watching.",
-    image: "https://image.tmdb.org/t/p/w780/uIb9Tvae5haF0XcQBaPyufmxbb0.jpg",
+    image: "https://image.tmdb.org/t/p/w780/6zg7A9ICOthNR2TSXlT51KvXrsA.jpg",
   },
 ];
 

@@ -22,7 +22,7 @@ function CollectionCard({
   return (
     <Link
       to={`/collections/${collection.slug}`}
-      className={`group relative flex-shrink-0 overflow-hidden rounded-lg border border-white/10 bg-cinema-card shadow-lg shadow-black/20 outline-none transition-all duration-300 hover:-translate-y-0.5 hover:border-cinema-accent/50 hover:shadow-cinema-accent/10 focus-visible:border-cinema-accent focus-visible:ring-2 focus-visible:ring-cinema-accent/30 ${
+      className={`group relative flex-shrink-0 overflow-hidden rounded-lg border border-white/10 bg-cinema-card shadow-lg shadow-black/20 outline-none transition-all duration-300 ${
         compact ? "w-64 md:w-auto" : "w-72 md:w-auto"
       } aspect-[16/9]`}
       aria-label={`Open ${collection.title} collection`}
@@ -41,9 +41,7 @@ function CollectionCard({
           <Clapperboard className="h-9 w-9 opacity-50" />
         </div>
       )}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${collection.accent} opacity-90`}
-      />
+      <div className={`absolute inset-0 bg-gradient-to-br  opacity-90`} />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/5" />
       <div className="absolute inset-x-0 top-0 h-px bg-white/20" />
       <div className="relative z-10 flex h-full flex-col justify-end p-4 md:p-5">
@@ -60,9 +58,9 @@ function CollectionCard({
         <h3 className="font-display text-[1.7rem] leading-none text-white md:text-3xl">
           {collection.title}
         </h3>
-        <p className="mt-1.5 line-clamp-2 max-w-[92%] text-xs leading-relaxed text-white/72 md:text-[13px]">
+        {/* <p className="mt-1.5 line-clamp-2 max-w-[92%] text-xs leading-relaxed text-white/72 md:text-[13px]">
           {collection.description}
-        </p>
+        </p> */}
       </div>
     </Link>
   );

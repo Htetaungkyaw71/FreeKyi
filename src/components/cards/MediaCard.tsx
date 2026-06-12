@@ -215,7 +215,7 @@ export function MediaCard({ item, type = "movie", index = 0 }: MediaCardProps) {
         to={getMediaPath(mediaType, item)}
         className="block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-cinema-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-cinema-bg"
       >
-        <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-cinema-card shadow-lg shadow-black/20 transition duration-300 group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:shadow-cinema-accent/10">
+        <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-cinema-card shadow-lg shadow-black/20 transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-cinema-accent/10">
           {posterUrl && !imageLoaded && !imageFailed && (
             <div className="skeleton absolute inset-0" aria-hidden="true" />
           )}
