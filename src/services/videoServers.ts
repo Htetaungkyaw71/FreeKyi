@@ -29,7 +29,7 @@ const optionalServers: VideoServerTemplate[] = [
     baseUrl: import.meta.env.VITE_VIDEO_SERVER_1_URL,
     movieTemplate: import.meta.env.VITE_VIDEO_SERVER_1_MOVIE_URL,
     tvTemplate: import.meta.env.VITE_VIDEO_SERVER_1_TV_URL,
-    usesEmbedPath: true,
+    usesEmbedPath: false,
   },
 ];
 
@@ -40,7 +40,7 @@ const fallbackServers: VideoServerTemplate[] = [
     baseUrl: import.meta.env.VITE_VIDEO_SERVER_3_URL,
     movieTemplate: import.meta.env.VITE_VIDEO_SERVER_3_MOVIE_URL,
     tvTemplate: import.meta.env.VITE_VIDEO_SERVER_3_TV_URL,
-    usesEmbedPath: false,
+    usesEmbedPath: true,
   },
 ];
 
@@ -113,7 +113,12 @@ export function getVideoServers({
   const servers: VideoServer[] = [];
 
   optionalServers.forEach((server, index) => {
-    const embedUrl = buildOptionalServerUrl(server, { id, type, season, episode });
+    const embedUrl = buildOptionalServerUrl(server, {
+      id,
+      type,
+      season,
+      episode,
+    });
     if (!embedUrl) return;
 
     servers.push({
@@ -132,7 +137,12 @@ export function getVideoServers({
   }
 
   fallbackServers.forEach((server, index) => {
-    const embedUrl = buildOptionalServerUrl(server, { id, type, season, episode });
+    const embedUrl = buildOptionalServerUrl(server, {
+      id,
+      type,
+      season,
+      episode,
+    });
     if (!embedUrl) return;
 
     servers.push({
