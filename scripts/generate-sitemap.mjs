@@ -54,24 +54,8 @@ function escapeXml(value) {
     .replace(/'/g, "&apos;");
 }
 
-function slugifyTitle(title) {
-  return title
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
-}
-
-function getTitle(item) {
-  return item.title || item.name || item.original_title || item.original_name || "";
-}
-
 function getDetailPath(mediaType, item) {
-  const slug = slugifyTitle(getTitle(item));
-  return `/${mediaType}/${item.id}${slug ? `-${slug}` : ""}`;
+  return `/${mediaType}/${item.id}`;
 }
 
 function createStaticUrls(today) {

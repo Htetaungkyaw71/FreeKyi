@@ -552,8 +552,7 @@ export default function Detail({ mediaType }: DetailPageProps) {
     : `Watch ${title}${year ? ` (${year})` : ""} online on FreeKyi. Find details, cast, ratings, and recommendations.`;
   const seoImage = posterUrl || backdropUrl;
   const schemaType = mediaType === "movie" ? "Movie" : "TVSeries";
-  const titleSlug = slugifyTitle(title);
-  const canonicalPath = `/${mediaType}/${numId}${titleSlug ? `-${titleSlug}` : ""}`;
+  const canonicalPath = `/${mediaType}/${numId}`;
   const shareUrl = `${window.location.origin}${canonicalPath}`;
   const shareText = `Watch ${title} on FreeKyi`;
   const encodedShareUrl = encodeURIComponent(shareUrl);

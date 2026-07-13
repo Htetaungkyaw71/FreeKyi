@@ -19,8 +19,7 @@ export function getMediaPath(
   mediaType: "movie" | "tv",
   item: Movie | TVSeries,
 ) {
-  const slug = slugifyTitle(getMediaTitle(item));
-  return `/${mediaType}/${item.id}${slug ? `-${slug}` : ""}`;
+  return `/${mediaType}/${item.id}`;
 }
 
 export function parseMediaId(idParam?: string) {
